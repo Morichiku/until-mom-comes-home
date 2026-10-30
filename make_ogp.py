@@ -1,21 +1,19 @@
-# make_ogp.py
-# 実行すると share0.html 〜 share10.html の11ファイルを同じフォルダに自動生成します
+# make_ogp.py（Xクローラー対策済み）
 
-# ★公開先のフォルダURL（末尾に / をつけてください）
+# ★実際の公開URL（末尾に必ず / をつける）
 BASE_URL = "https://morichiku.github.io/until-mom-comes-home/"
-# ★結果イラストが置いてあるパスと拡張子（例: "images/end0.jpg" なら DIR="images/", EXT=".jpg"）
+
+# ★実際の結果画像の拡張子（".png" または ".jpg"）
 IMG_DIR = "images/"
-IMG_EXT = ".jpg"
+IMG_EXT = ".png" 
 
 for i in range(11):
-    title = (
-        f"UNTIL MOM COMES HOME — ママが帰るまで — ({i}/10)"
-        if i < 10
-        else "UNTIL MOM COMES HOME — ママが帰るまで — (10/10 CLEAR!)"
-    )
-    desc = (
-        "雷とスマホライトで気配を探りながら、ママに10通のLINEを送って助けを呼べ。"
-    )
+    if i < 10:
+        title = f"UNTIL MOM COMES HOME — ママが帰るまで — ({i}/10)"
+    else:
+        title = "UNTIL MOM COMES HOME — ママが帰るまで — (10/10 CLEAR!)"
+    
+    desc = "雷とスマホライトで気配を探りながら、ママに10通のLINEを送って助けを呼べ。"
     img_url = f"{BASE_URL}{IMG_DIR}end{i}{IMG_EXT}"
 
     html = f"""<!DOCTYPE html>
@@ -27,8 +25,8 @@ for i in range(11):
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:image" content="{img_url}">
+<meta property="og:url" content="{BASE_URL}share{i}.html">
 <meta property="og:type" content="website">
-<meta http-equiv="refresh" content="0; url=./index.html">
 <script>location.replace("./index.html");</script>
 </head>
 <body style="background:#000015;color:#fff;font-family:sans-serif;text-align:center;padding-top:40vh;">
@@ -39,4 +37,4 @@ for i in range(11):
     with open(f"share{i}.html", "w", encoding="utf-8") as f:
         f.write(html)
 
-print("✓ share0.html 〜 share10.html の全11ファイルを生成しました！")
+print("✓ share0.html 〜 share10.html を再生成しました！")
