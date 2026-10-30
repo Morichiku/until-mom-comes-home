@@ -4,931 +4,209 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>UNTIL MOM COMES HOME — ママが帰るまで —</title>
-
-<!-- X (旧Twitter) OGP設定 -->
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:title" content="UNTIL MOM COMES HOME — ママが帰るまで —">
 <meta property="og:description" content="部屋の人形が突然動き出し、タンスの中に隠れた。雷とスマホライトで気配を探りながら、ママに10通のLINEを送って助けを呼べ。">
 <meta property="og:image" content="https://morichiku.github.io/images/title1.png">
 <meta property="og:type" content="website">
-
 <style>
-  * {
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* 全画像の長押し保存・プレビュー・ドラッグを完全ブロック */
-  img {
-    pointer-events: none !important;
-    -webkit-user-drag: none;
-    -webkit-touch-callout: none !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-  }
-
-  body {
-    background-color: #000015;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
-    height: 100dvh;
-    width: 100vw;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  #game-container {
-    position: relative;
-    width: 100%;
-    max-width: 450px;
-    height: 100dvh;
-    background: #000015;
-    overflow: hidden;
-  }
-
-  /* =========================================
-     ボタンデザイン
-     ========================================= */
-  .crimson-btn {
-    background: linear-gradient(180deg, rgba(16, 16, 36, 0.92) 0%, rgba(5, 5, 18, 0.98) 100%);
-    color: #f7fafc;
-    border: 1.5px solid rgba(220, 38, 38, 0.82);
-    font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
-    font-weight: 600;
-    border-radius: 28px;
-    cursor: pointer;
-    box-shadow: 0 0 14px rgba(220, 38, 38, 0.25), inset 0 0 8px rgba(220, 38, 38, 0.12);
-    backdrop-filter: blur(6px);
-    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.5s ease;
-  }
-  .crimson-btn:active { transform: scale(0.97); }
-
-  .yellow-outline-btn {
-    background: linear-gradient(180deg, rgba(20, 20, 38, 0.92) 0%, rgba(7, 7, 18, 0.98) 100%);
-    color: #fefcbf;
-    border: 1.5px solid rgba(246, 224, 94, 0.78);
-    font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
-    font-weight: 600;
-    border-radius: 28px;
-    cursor: pointer;
-    box-shadow: 0 0 14px rgba(246, 224, 94, 0.2), inset 0 0 8px rgba(246, 224, 94, 0.1);
-    backdrop-filter: blur(6px);
-    transition: transform 0.15s ease, opacity 0.8s ease;
-  }
-  .yellow-outline-btn:active { transform: scale(0.97); }
-
-  .heartbeat-only {
-    animation: crimsonHeartbeat 1.35s infinite ease-in-out;
-  }
-  @keyframes crimsonHeartbeat {
-    0%, 29%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 14px rgba(220, 38, 38, 0.25), inset 0 0 8px rgba(220, 38, 38, 0.12);
-      border-color: rgba(220, 38, 38, 0.75);
-    }
-    7% {
-      transform: scale(1.08);
-      box-shadow: 0 0 24px rgba(239, 68, 68, 0.6), inset 0 0 14px rgba(239, 68, 68, 0.28);
-      border-color: rgba(252, 165, 165, 0.98);
-    }
-    14% { transform: scale(0.98); }
-    21% {
-      transform: scale(1.055);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.48), inset 0 0 12px rgba(239, 68, 68, 0.22);
-      border-color: rgba(248, 113, 113, 0.92);
-    }
-  }
-
-  /* =========================================
-     ★第1画面：ローディング画面（バー完了で「次へ」）
-     ========================================= */
-  #loading-screen {
-    position: absolute;
-    inset: 0;
-    background: #000000;
-    z-index: 85;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 28px;
-    text-align: center;
-    opacity: 1;
-    transition: opacity 0.9s ease-in-out;
-  }
-  #loading-screen.fade-out {
-    opacity: 0;
-    pointer-events: none;
-  }
-  #loading-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-    width: 100%;
-    max-width: 280px;
-  }
-  .loading-title {
-    font-family: "Times New Roman", "Hiragino Mincho ProN", serif;
-    font-size: 15px;
-    letter-spacing: 5px;
-    color: #f7fafc;
-    text-indent: 5px;
-  }
-  #loading-bar-bg {
-    width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid rgba(220, 38, 38, 0.4);
-  }
-  #loading-bar-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #991b1b 0%, #ef4444 100%);
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
-    transition: width 0.2s ease;
-  }
-  #loading-percent-text {
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
-    font-size: 11.5px;
-    letter-spacing: 1.5px;
-    color: rgba(226, 232, 240, 0.85);
-  }
-  #btn-loading-next {
-    margin-top: 8px;
-    width: 180px;
-    padding: 11px 0;
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-indent: 3px;
-    opacity: 0;
-    pointer-events: none;
-  }
-  #btn-loading-next.ready {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* =========================================
-     ★第2画面：音あり推奨画面（「次へ」で音量ゼロ開始→フェードアウト）
-     ========================================= */
-  #sound-notice-screen {
-    position: absolute;
-    inset: 0;
-    background: #000000;
-    z-index: 80;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 28px;
-    text-align: center;
-    opacity: 1;
-    transition: opacity 1.6s ease-in-out;
-  }
-  #sound-notice-screen.fade-out {
-    opacity: 0;
-    pointer-events: none;
-  }
-  #sound-notice-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 22px;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
-  }
-  #sound-notice-content.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .sound-notice-icon {
-    width: 48px;
-    height: 48px;
-    stroke: #ffffff;
-    stroke-width: 1.7;
-    fill: none;
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
-  }
-  .sound-notice-text {
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Sans JP", serif;
-    font-size: 14px;
-    letter-spacing: 2px;
-    color: #ffffff;
-    line-height: 1.8;
-  }
-  #btn-sound-notice-ok {
-    margin-top: 8px;
-    width: 180px;
-    padding: 11px 0;
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-indent: 3px;
-  }
-
-  /* =========================================
-     1. スタート画面
-     ========================================= */
-  #start-screen {
-    position: absolute;
-    inset: 0;
-    background-color: #000015;
-    background-image: radial-gradient(circle at 50% 48%, rgba(25, 35, 80, 0.22) 0%, rgba(5, 7, 25, 0.85) 55%, rgba(0, 0, 15, 0.98) 85%);
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 34px 20px 30px;
-    text-align: center;
-    transition: background-color 0.15s ease, background-image 0.15s ease;
-    overflow: hidden;
-  }
-  #start-heartbeat-vignette {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 4;
-    background: radial-gradient(circle at 50% 50%, transparent 32%, rgba(0, 0, 5, 0.65) 68%, rgba(0, 0, 0, 0.96) 100%);
-    animation: heartbeatPulse 1.35s infinite ease-in-out;
-  }
-  @keyframes heartbeatPulse {
-    0%, 100% { opacity: 0.72; transform: scale(1.02); }
-    14%      { opacity: 1.00; transform: scale(0.94); }
-    28%      { opacity: 0.78; transform: scale(0.99); }
-    42%      { opacity: 0.96; transform: scale(0.96); }
-    70%      { opacity: 0.70; transform: scale(1.03); }
-  }
-  #boot-veil {
-    position: absolute;
-    inset: 0;
-    background: #000015;
-    z-index: 55;
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 2.2s ease-in-out;
-  }
-  #boot-veil.fade-out { opacity: 0; }
-
-  #start-screen.monochrome-bg {
-    background-color: #080808;
-    background-image: radial-gradient(circle at 50% 48%, #242424 0%, #0a0a0a 60%, #000000 95%);
-  }
-  #start-screen.monochrome-bg #title-header,
-  #start-screen.monochrome-bg #poster-bottom,
-  #start-screen.monochrome-bg #btn-sound {
-    filter: grayscale(100%);
-  }
-
-  .stagger-item {
-    opacity: 0;
-    transform: translateY(-16px);
-    transition: opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1), transform 1.0s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .stagger-item.appear {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  #btn-sound {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(226, 232, 240, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
-    padding: 5px 11px;
-    font-size: 10px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-  }
-  #btn-sound.muted {
-    color: rgba(113, 128, 150, 0.6);
-    border-color: rgba(255, 255, 255, 0.06);
-  }
-
-  #title-header {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 8px;
-  }
-  .title-sub {
-    font-size: 9.5px;
-    letter-spacing: 6px;
-    color: rgba(160, 174, 192, 0.75);
-    margin-bottom: 8px;
-    text-indent: 6px;
-  }
-  #title-header h1 {
-    font-family: "Times New Roman", "Didot", "Georgia", "Hiragino Mincho ProN", "Yu Mincho", serif;
-    font-size: 26px;
-    letter-spacing: 3.5px;
-    color: #f7fafc;
-    font-weight: 400;
-    line-height: 1.15;
-    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.95), 0 0 18px rgba(160, 190, 255, 0.25);
-    margin-bottom: 8px;
-  }
-  .title-jp {
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-    font-size: 13px;
-    letter-spacing: 5px;
-    color: rgba(226, 232, 240, 0.85);
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
-  }
-  #load-status { font-size: 10px; color: #fc8181; margin-top: 4px; min-height: 14px; }
-
-  #title-art-box {
-    position: relative;
-    z-index: 7;
-    width: 100%;
-    flex: 1;
-    max-height: 54dvh;
-    margin: -10px 0 -14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-  }
-  #title-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: none;
-    filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.95));
-    transform: scale(0.15);
-    transform-origin: center center;
-    will-change: transform;
-  }
-  #title-art-placeholder {
-    font-size: 11px;
-    color: rgba(113, 128, 150, 0.4);
-    transform: scale(0.15);
-  }
-
-  #poster-bottom {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-  }
-  #rule-billing {
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Sans JP", serif;
-    font-size: 11px;
-    color: rgba(203, 213, 224, 0.78);
-    line-height: 1.85;
-    letter-spacing: 0.8px;
-    text-shadow: 0 2px 8px #000, 0 0 12px #000;
-  }
-  #rule-billing b { color: rgba(254, 240, 138, 0.92); font-weight: 500; }
-  #btn-start {
-    position: relative;
-    z-index: 6;
-    width: 210px;
-    padding: 12px 0;
-    font-size: 14px;
-    letter-spacing: 5px;
-    text-indent: 5px;
-  }
-
-  /* =========================================
-     2. 物語説明画面 ＆ 3. ルール説明画面
-     ========================================= */
-  .intro-screen-base {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    z-index: 48;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 28px 14px;
-    text-align: center;
-    overflow: hidden;
-  }
-  .intro-bg-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.28) blur(5px);
-    transform: scale(1.06);
-    z-index: -1;
-  }
-  .story-container {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    margin-bottom: 44px;
-    padding: 10px 6px;
-    width: 100%;
-    max-width: 420px;
-  }
-  .story-line {
-    font-size: 15px;
-    color: #e2e8f0;
-    line-height: 1.9;
-    letter-spacing: 1.2px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 18px rgba(0, 0, 0, 0.9);
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 1.4s ease, transform 1.4s ease;
-  }
-  .story-line.show { opacity: 1; transform: translateY(0); }
-  .story-line.spoken {
-    color: #fc8181;
-    font-weight: bold;
-    font-size: 16.5px;
-    line-height: 1.75;
-    letter-spacing: 1.4px;
-  }
-
-  .rule-detail-card {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 32px;
-    background: rgba(8, 11, 18, 0.76);
-    padding: 24px 20px;
-    border-radius: 16px;
-    border: 1px solid rgba(246, 224, 94, 0.38);
-    backdrop-filter: blur(4px);
-    width: 100%;
-    max-width: 370px;
-    text-align: left;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.85);
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-  .rule-detail-card.show { opacity: 1; transform: translateY(0); }
-  .rule-detail-header {
-    text-align: center;
-    font-family: "Times New Roman", "Hiragino Mincho ProN", serif;
-    font-size: 16px;
-    letter-spacing: 3px;
-    color: #f6e05e;
-    border-bottom: 1px solid rgba(246, 224, 94, 0.35);
-    padding-bottom: 8px;
-  }
-  .rule-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 13.5px;
-    color: #e2e8f0;
-    line-height: 1.65;
-  }
-  .rule-bullet { color: #f6e05e; font-weight: bold; flex-shrink: 0; }
-  .rule-item b { color: #fefcbf; }
-  .intro-next-btn {
-    padding: 12px 44px;
-    font-size: 14px;
-    letter-spacing: 2px;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .intro-next-btn.show { opacity: 1; pointer-events: auto; }
-
-  /* プレイ前のメッセージ */
-  #ready-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.25);
-    z-index: 20;
-    display: none;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 44px 16px 0;
-  }
-  #ready-window {
-    padding: 4px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .ready-msg {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(247, 250, 252, 0.92);
-    line-height: 1.4;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.9);
-  }
-  #btn-ready-arrow {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 11px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    padding-left: 2px;
-  }
-
-  #full-blackout {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    z-index: 60;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-  }
-  #full-blackout.active { opacity: 1; }
-
-  .gameplay-element { display: none; }
-  body.in-game #scene-layer,
-  body.in-game #stage-blackout,
-  body.in-game #flash-overlay,
-  body.in-game #vignette-layer { display: block; }
-  body.in-game #locker-door,
-  body.in-game #smartphone-wrapper,
-  body.in-game #hud { display: flex; }
-
-  /* Layer 1: A〜J メイン画像部 */
-  #scene-layer { position: absolute; inset: 0; background: #000; z-index: 1; overflow: hidden; }
-  #scene-layer.start-scare-mode { display: block !important; z-index: 58 !important; }
-  #scene-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    animation: roomBreath 8s ease-in-out infinite;
-  }
-  @keyframes roomBreath {
-    0%, 100% { transform: scale(1.015) translate(0px, 0px); }
-    50%      { transform: scale(1.015) translate(-1px, 1.5px); }
-  }
-  #stage-blackout {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.08s ease;
-  }
-  #stage-blackout.active { opacity: 1; }
-  #scene-img.jumpscare-attack { animation: scareShake 0.06s infinite !important; }
-  @keyframes scareShake {
-    0%   { transform: translate(12px, -10px) scale(1.18) rotate(2deg); }
-    25%  { transform: translate(-14px, 8px) scale(1.22) rotate(-2deg); }
-    50%  { transform: translate(10px, 14px) scale(1.15) rotate(1deg); }
-    75%  { transform: translate(-12px, -12px) scale(1.22) rotate(-2.5deg); }
-    100% { transform: translate(8px, 6px) scale(1.18) rotate(1.5deg); }
-  }
-  #flash-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(210, 230, 255, 0.18);
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0;
-  }
-  #flash-overlay.active { opacity: 1; }
-  #white-flash {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%);
-    z-index: 59;
-    pointer-events: none;
-    display: none;
-    animation: whiteStrobe 0.07s infinite alternate;
-  }
-  @keyframes whiteStrobe { from { opacity: 0.05; } to { opacity: 0.85; } }
-  #vignette-layer {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.72) 100%);
-    z-index: 3;
-    pointer-events: none;
-  }
-
-  /* Layer 2: タンスの扉 */
-  #locker-door {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    transform: translateX(-94%);
-    transition: transform 1.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 15px 0 40px rgba(0,0,0,0.95);
-    overflow: hidden;
-  }
-  #locker-door.closed {
-    transform: translateX(0%);
-    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-  }
-  #locker-door.blown-open {
-    transform: translateX(-105%) !important;
-    transition: transform 0.15s ease-in !important;
-  }
-  #door-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
-  #door-fallback {
-    position: absolute;
-    inset: 0;
-    background: 
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 2px, transparent 2px, transparent 48px),
-      linear-gradient(90deg, #2b180e 0%, #3d2314 35%, #4a2c1a 60%, #24130a 100%);
-    border-right: 8px solid #1a0d06;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-  }
-  .wood-panel {
-    width: 72%;
-    padding: 22px 16px;
-    margin-bottom: 28%;
-    border: 4px solid #1f1108;
-    background: rgba(20, 10, 4, 0.35);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .slit { height: 10px; background: #050302; border-bottom: 1px solid #5c3822; }
-  #door-light-reflection {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: radial-gradient(circle 320px at 50% 72%, rgba(240, 248, 255, 0.22) 0%, rgba(215, 232, 255, 0.11) 42%, rgba(195, 215, 255, 0.04) 68%, transparent 92%);
-    transform: translateX(94%);
-    transition: transform 1.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-  #locker-door.closed #door-light-reflection {
-    transform: translateX(0%);
-    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-  }
-  #door-light-reflection.light-off { opacity: 0 !important; }
-
-  /* Layer 3: スマホUI */
-  #smartphone-wrapper {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 268px;
-    height: 38dvh;
-    min-height: 255px;
-    max-height: 320px;
-    transform: translateX(-50%) translateY(0%);
-    z-index: 5;
-    flex-direction: column;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    perspective: 580px;
-  }
-  #smartphone-wrapper.slide-down { transform: translateX(-50%) translateY(26%); }
-  #smartphone-wrapper.drop-away { transform: translateX(-50%) translateY(120%) rotate(12deg) !important; }
-
-  #ctrl-bar { display: flex; gap: 10px; margin-bottom: 8px; padding: 0 4px; z-index: 15; }
-  .action-btn {
-    flex: 1;
-    background: rgba(10, 12, 18, 0.65);
-    color: rgba(226, 232, 240, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
-    padding: 8px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-    touch-action: none;
-  }
-  .action-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; pointer-events: none; }
-  .action-btn span { pointer-events: none; }
-  .action-btn:active { transform: scale(0.96); }
-  .action-btn.on-light {
-    background: rgba(250, 240, 205, 0.18);
-    color: #fefcbf;
-    border-color: rgba(254, 240, 138, 0.65);
-    box-shadow: 0 0 18px rgba(250, 204, 21, 0.3), inset 0 0 10px rgba(254, 240, 138, 0.2);
-  }
-  .action-btn.on-door {
-    background: rgba(185, 28, 28, 0.28);
-    color: #fecaca;
-    border-color: rgba(248, 113, 113, 0.55);
-    box-shadow: 0 0 16px rgba(220, 38, 38, 0.28), inset 0 0 8px rgba(248, 113, 113, 0.15);
-  }
-  .action-btn.disabled-btn {
-    opacity: 0.35;
-    pointer-events: none;
-  }
-
-  #phone-sway-box {
-    flex: 1;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    animation: phoneNaturalSway 5.2s ease-in-out infinite;
-    transform-style: preserve-3d;
-  }
-  @keyframes phoneNaturalSway {
-    0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
-    35%      { transform: translate(1.2px, -3.5px) rotate(0.22deg); }
-    70%      { transform: translate(-1.0px, -1.8px) rotate(-0.18deg); }
-  }
-  #phone-frame {
-    position: relative;
-    flex: 1;
-    background: #040507;
-    border: 4px solid #12151c;
-    border-bottom: none;
-    border-radius: 26px 26px 0 0;
-    padding: 6px 6px 0 6px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 -12px 38px rgba(175, 210, 255, 0.15), 0 -3px 16px rgba(220, 240, 255, 0.10), 0 -6px 25px rgba(0, 0, 0, 0.98);
-    overflow: hidden;
-    transform-origin: bottom center;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
-  }
-  #smartphone-wrapper.tilt-forward #phone-frame {
-    transform: rotateX(25deg) translateY(9px) scale(0.97);
-    box-shadow: 0 -35px 70px rgba(255, 250, 220, 0.32), 0 -12px 30px rgba(255, 245, 200, 0.22), 0 10px 30px rgba(0, 0, 0, 0.98);
-  }
-  #phone-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 22px 22px 0 0;
-    background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.14) 0%, transparent 60%), linear-gradient(135deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 55%);
-    pointer-events: none;
-    z-index: 10;
-  }
-  #phone-frame.glow-off { box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.98) !important; transition: none !important; }
-  #phone-frame.glow-off::after { opacity: 0 !important; }
-  .phone-speaker { width: 38px; height: 4px; background: #14171f; border-radius: 2px; margin: 0 auto 5px; }
-  #phone-screen { position: relative; flex: 1; background: #354256; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; }
-
-  #flashlight-screen-overlay {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 42%, #1e2430 0%, #090b10 100%);
-    z-index: 8;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-  }
-  #smartphone-wrapper.tilt-forward #flashlight-screen-overlay { opacity: 1; pointer-events: auto; }
-  .ios-torch-circle {
-    width: 86px;
-    height: 86px;
-    border-radius: 50%;
-    background: rgba(255, 250, 225, 0.95);
-    box-shadow: 0 0 35px rgba(255, 240, 170, 0.75), 0 0 12px rgba(255, 255, 255, 0.9), inset 0 0 15px #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .ios-torch-circle svg { width: 44px; height: 44px; stroke: #111318; stroke-width: 2; fill: #111318; }
-  .ios-torch-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; color: rgba(254, 240, 138, 0.9); }
-
-  #lock-screen-overlay {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 30%, #151924 0%, #07090e 100%);
-    z-index: 9;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 12px 10px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.12s ease;
-    overflow: hidden;
-  }
-  #smartphone-wrapper.locked #lock-screen-overlay { opacity: 1; }
-  #lock-blackout-mask { position: absolute; inset: 0; background: #000; z-index: 12; opacity: 0; pointer-events: none; }
-  #lock-screen-overlay.flicker-off #lock-blackout-mask { opacity: 1; }
-  #lock-scare-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 11; display: none; }
-  .lock-top-group { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .lock-padlock-icon { width: 14px; height: 14px; stroke: rgba(240, 246, 255, 0.85); stroke-width: 2; fill: none; margin-bottom: 2px; }
-  #lock-clock-time { font-size: 46px; font-weight: 200; letter-spacing: 2px; color: rgba(248, 252, 255, 0.95); line-height: 1.05; text-shadow: 0 0 18px rgba(220, 238, 255, 0.35); font-variant-numeric: tabular-nums; }
-  .lock-bottom-group { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
-  .lock-Status-note { font-size: 10px; color: rgba(203, 213, 224, 0.65); letter-spacing: 0.5px; }
-  .lock-home-bar { width: 88px; height: 4px; background: rgba(255, 255, 255, 0.65); border-radius: 2px; }
-
-  #battery-dead-overlay { position: absolute; inset: 0; background: #000; z-index: 14; display: none; justify-content: center; align-items: center; }
-  #battery-dead-icon { width: 76px; height: 40px; opacity: 0; }
-  #battery-dead-icon.visible { opacity: 1; }
-
-  #line-header { background: #1d2430; color: #fff; padding: 5px 10px; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-  #battery-disp { color: #68d391; font-size: 10px; font-weight: bold; }
-  .battery-critical { color: #ff4444 !important; animation: blinkCrit 0.4s infinite alternate; }
-  @keyframes blinkCrit { from { opacity: 1; } to { opacity: 0.3; } }
-
-  #line-chat-area { flex: 1; padding: 6px 8px; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; overflow: hidden; }
-  .my-row { display: flex; justify-content: flex-end; align-items: flex-end; gap: 4px; }
-  .read-label { font-size: 9px; color: #cbd5e0; line-height: 1; }
-  #last-sent-bubble { background: #8de055; color: #111; padding: 4px 8px; border-radius: 12px; border-top-right-radius: 2px; font-size: 11px; max-width: 82%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .friend-row { display: flex; align-items: flex-start; gap: 5px; transition: opacity 0.2s ease; }
-  .friend-icon { width: 20px; height: 20px; border-radius: 50%; background: #f6ad55; color: #1a202c; font-size: 10px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-weight: bold; }
-  #friend-msg { background: #fff; color: #111; padding: 4px 8px; border-radius: 12px; border-top-left-radius: 2px; font-size: 11px; line-height: 1.3; max-width: 85%; }
-
-  #line-input-bar { background: #e2e6ec; padding: 4px 6px; display: flex; align-items: center; gap: 5px; border-top: 1px solid #cbd5e0; }
-  #typed-box { flex: 1; background: #fff; border: 1px solid #cbd5e0; border-radius: 14px; padding: 3px 8px; display: flex; justify-content: space-between; align-items: center; min-height: 24px; }
-  #typed-text { font-size: 12px; font-weight: bold; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #next-char-hint { font-size: 10px; color: #06c755; font-weight: bold; flex-shrink: 0; margin-left: 4px; }
-  .send-icon { width: 22px; height: 22px; border-radius: 50%; background: #06c755; color: #fff; font-size: 10px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-
-  #keypad { background: #c4cad4; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px 8px 10px; }
-  .key-btn { background: #fff; color: #111; border: none; border-radius: 6px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 0 #8e96a4; }
-  .key-btn:active { background: #e5e7eb; transform: translateY(1px); box-shadow: 0 1px 0 #8e96a4; }
-
-  #hud { position: absolute; top: 12px; left: 14px; right: 14px; z-index: 10; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 0 1px 4px #000; pointer-events: none; }
-
-  /* 4. 結果画面 */
-  #overlay { position: absolute; inset: 0; background: #000; z-index: 35; display: none; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 10px 14px; text-align: center; opacity: 0; transition: opacity 0.55s ease; overflow: hidden; }
-  #overlay.fade-in { opacity: 1; }
-  #window-line { background: #11141d; border: 1px solid #2d3748; padding: 10px 12px; border-radius: 16px; width: 100%; max-width: 355px; box-shadow: 0 12px 32px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 6px; opacity: 0; transform: translateY(145px); transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; }
-  #window-line.center-stage { opacity: 1; transform: translateY(145px); }
-  #window-line.move-to-top { opacity: 1; transform: translateY(0); }
-  #final-chat-window { background: #354256; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; text-align: left; max-height: 150px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; border: 2px solid #1d2430; }
-  .fc-row-me { display: flex; justify-content: flex-end; align-items: flex-end; gap: 4px; }
-  .fc-bubble-me { background: #8de055; color: #111; padding: 5px 9px; border-radius: 12px; border-top-right-radius: 3px; font-size: 11px; font-weight: bold; max-width: 85%; }
-  .fc-row-friend { display: flex; align-items: flex-start; gap: 6px; opacity: 0; transform: translateY(5px); transition: opacity 0.3s ease, transform 0.3s ease; }
-  .fc-row-friend.visible { opacity: 1; transform: translateY(0); }
-  .fc-bubble-friend { background: #fff; color: #111; padding: 5px 9px; border-radius: 12px; border-top-left-radius: 3px; font-size: 11px; line-height: 1.35; max-width: 85%; }
-  #death-reason { font-size: 12px; font-weight: bold; color: #e2e8f0; line-height: 1.45; }
-
-  #window-media { background: #11141d; border: 1px solid #2d3748; padding: 10px 12px; border-radius: 16px; width: 100%; max-width: 355px; box-shadow: 0 12px 32px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 8px; overflow: hidden; opacity: 0; transition: opacity 0.35s ease; }
-  #window-media.visible { opacity: 1; }
-  #result-art-box { width: 100%; max-width: 255px; aspect-ratio: 4 / 3; margin: 0 auto; background: #080a0f; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; opacity: 0; transform: translateX(115%); transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease; }
-  #result-art-box.slide-in-right { opacity: 1; transform: translateX(0); }
-  #result-img { width: 100%; height: 100%; object-fit: contain; display: none; }
-  #result-art-placeholder { font-size: 11px; color: #4b5563; }
-  #result-footer-section { display: flex; flex-direction: column; gap: 8px; opacity: 0; transform: translateY(24px); transition: transform 0.65s ease, opacity 0.65s ease; }
-  #result-footer-section.float-up { opacity: 1; transform: translateY(0); }
-  .end-btn-row { display: flex; gap: 8px; }
-  .end-btn { flex: 1; padding: 9px 6px; border-radius: 22px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; text-decoration: none; display: flex; justify-content: center; align-items: center; }
-  #share-link { background: linear-gradient(180deg, #2b5668 0%, #1b3947 100%); color: #f3efe6; border: 1px solid rgba(144, 205, 244, 0.35); }
-  #btn-retry-end { background: linear-gradient(180deg, #2e1b12 0%, #1c100a 100%); color: #e6e1d6; border: 1px solid rgba(196, 123, 10, 0.35); }
-  #creator-credit { margin-top: 2px; padding-top: 8px; border-top: 1px solid #2d3748; display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; }
-  #creator-icon { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #4a5568; background: #1a202c; flex-shrink: 0; }
-  .credit-text { font-size: 11px; color: #cbd5e0; line-height: 1.45; }
-  .credit-text a { color: #63b3ed; text-decoration: underline; font-weight: bold; word-break: break-all; }
+  *{box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;margin:0;padding:0;}
+  img{pointer-events:none!important;-webkit-user-drag:none;-webkit-touch-callout:none!important;user-select:none!important;-webkit-user-select:none!important;}
+  body{background-color:#000015;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;height:100dvh;width:100vw;overflow:hidden;display:flex;justify-content:center;align-items:center;}
+  #game-container{position:relative;width:100%;max-width:450px;height:100dvh;background:#000015;overflow:hidden;}
+  .crimson-btn{background:linear-gradient(180deg,rgba(16,16,36,0.92) 0%,rgba(5,5,18,0.98) 100%);color:#f7fafc;border:1.5px solid rgba(220,38,38,0.82);font-family:"Times New Roman","Hiragino Mincho ProN",serif;font-weight:600;border-radius:28px;cursor:pointer;box-shadow:0 0 14px rgba(220,38,38,0.25),inset 0 0 8px rgba(220,38,38,0.12);backdrop-filter:blur(6px);transition:transform 0.15s ease,opacity 0.5s ease;}
+  .crimson-btn:active{transform:scale(0.97);}
+  .yellow-outline-btn{background:linear-gradient(180deg,rgba(20,20,38,0.92) 0%,rgba(7,7,18,0.98) 100%);color:#fefcbf;border:1.5px solid rgba(246,224,94,0.78);font-family:"Times New Roman","Hiragino Mincho ProN",serif;font-weight:600;border-radius:28px;cursor:pointer;box-shadow:0 0 14px rgba(246,224,94,0.2);backdrop-filter:blur(6px);transition:transform 0.15s ease,opacity 0.8s ease;}
+  .yellow-outline-btn:active{transform:scale(0.97);}
+  .heartbeat-only{animation:crimsonHeartbeat 1.35s infinite ease-in-out;}
+  @keyframes crimsonHeartbeat{0%,29%,100%{transform:scale(1);box-shadow:0 0 14px rgba(220,38,38,0.25);border-color:rgba(220,38,38,0.75);}7%{transform:scale(1.08);box-shadow:0 0 24px rgba(239,68,68,0.6);border-color:rgba(252,165,165,0.98);}14%{transform:scale(0.98);}21%{transform:scale(1.055);box-shadow:0 0 20px rgba(239,68,68,0.48);border-color:rgba(248,113,113,0.92);}}
+  #loading-screen,#sound-notice-screen{position:absolute;inset:0;background:#000;z-index:85;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:28px;text-align:center;opacity:1;transition:opacity 0.9s ease-in-out;}
+  #sound-notice-screen{z-index:80;display:none;transition:opacity 1.5s ease-in-out;}
+  #loading-screen.fade-out,#sound-notice-screen.fade-out{opacity:0;pointer-events:none;}
+  #loading-content,#sound-notice-content{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:280px;}
+  #sound-notice-content{opacity:0;transform:translateY(8px);transition:opacity 1.2s ease,transform 1.2s ease;}
+  #sound-notice-content.visible{opacity:1;transform:translateY(0);}
+  .loading-title{font-family:"Times New Roman","Hiragino Mincho ProN",serif;font-size:15px;letter-spacing:5px;color:#f7fafc;text-indent:5px;}
+  #loading-bar-bg{width:100%;height:6px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden;border:1px solid rgba(220,38,38,0.4);}
+  #loading-bar-fill{width:0%;height:100%;background:linear-gradient(90deg,#991b1b 0%,#ef4444 100%);box-shadow:0 0 10px rgba(239,68,68,0.8);transition:width 0.2s ease;}
+  #loading-percent-text{font-family:"Hiragino Mincho ProN",serif;font-size:11.5px;letter-spacing:1.5px;color:rgba(226,232,240,0.85);}
+  #btn-loading-next{margin-top:8px;width:180px;padding:11px 0;font-size:13px;letter-spacing:3px;text-indent:3px;opacity:0;pointer-events:none;}
+  #btn-loading-next.ready{opacity:1;pointer-events:auto;}
+  .sound-notice-icon{width:48px;height:48px;stroke:#fff;stroke-width:1.7;fill:none;filter:drop-shadow(0 0 12px rgba(255,255,255,0.35));}
+  .sound-notice-text{font-family:"Hiragino Mincho ProN",serif;font-size:14px;letter-spacing:2px;color:#fff;line-height:1.8;}
+  #btn-sound-notice-ok{margin-top:8px;width:180px;padding:11px 0;font-size:13px;letter-spacing:3px;text-indent:3px;}
+  #start-screen{position:absolute;inset:0;background-color:#000015;background-image:radial-gradient(circle at 50% 48%,rgba(25,35,80,0.22) 0%,rgba(5,7,25,0.85) 55%,rgba(0,0,15,0.98) 85%);z-index:50;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:34px 20px 30px;text-align:center;transition:background-color 0.15s ease;overflow:hidden;}
+  #start-heartbeat-vignette{position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(circle at 50% 50%,transparent 32%,rgba(0,0,5,0.65) 68%,rgba(0,0,0,0.96) 100%);animation:heartbeatPulse 1.35s infinite ease-in-out;}
+  @keyframes heartbeatPulse{0%,100%{opacity:0.72;transform:scale(1.02);}14%{opacity:1;transform:scale(0.94);}28%{opacity:0.78;transform:scale(0.99);}42%{opacity:0.96;transform:scale(0.96);}70%{opacity:0.7;transform:scale(1.03);}}
+  #boot-veil{position:absolute;inset:0;background:#000015;z-index:55;pointer-events:none;opacity:1;transition:opacity 2.2s ease-in-out;}
+  #boot-veil.fade-out{opacity:0;}
+  #start-screen.monochrome-bg{background-color:#080808;background-image:radial-gradient(circle at 50% 48%,#242424 0%,#0a0a0a 60%,#000 95%);}
+  #start-screen.monochrome-bg #title-header,#start-screen.monochrome-bg #poster-bottom,#start-screen.monochrome-bg #btn-sound{filter:grayscale(100%);}
+  .stagger-item{opacity:0;transform:translateY(-16px);transition:opacity 1s cubic-bezier(0.22,1,0.36,1),transform 1s cubic-bezier(0.22,1,0.36,1);}
+  .stagger-item.appear{opacity:1;transform:translateY(0);}
+  #btn-sound{position:absolute;top:14px;right:14px;z-index:10;background:rgba(255,255,255,0.04);color:rgba(226,232,240,0.75);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:5px 11px;font-size:10px;letter-spacing:1px;cursor:pointer;backdrop-filter:blur(4px);}
+  #btn-sound.muted{color:rgba(113,128,150,0.6);border-color:rgba(255,255,255,0.06);}
+  #title-header{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;margin-top:8px;}
+  .title-sub{font-size:9.5px;letter-spacing:6px;color:rgba(160,174,192,0.75);margin-bottom:8px;text-indent:6px;}
+  #title-header h1{font-family:"Times New Roman","Didot","Georgia","Hiragino Mincho ProN",serif;font-size:26px;letter-spacing:3.5px;color:#f7fafc;font-weight:400;line-height:1.15;text-shadow:0 4px 24px rgba(0,0,0,0.95),0 0 18px rgba(160,190,255,0.25);margin-bottom:8px;}
+  .title-jp{font-family:"Hiragino Mincho ProN",serif;font-size:13px;letter-spacing:5px;color:rgba(226,232,240,0.85);text-shadow:0 2px 10px rgba(0,0,0,0.9);}
+  #load-status{font-size:10px;color:#fc8181;margin-top:4px;min-height:14px;}
+  #title-art-box{position:relative;z-index:7;width:100%;flex:1;max-height:54dvh;margin:-10px 0 -14px;display:flex;justify-content:center;align-items:center;pointer-events:none;}
+  #title-img{width:100%;height:100%;object-fit:contain;display:none;filter:drop-shadow(0 18px 36px rgba(0,0,0,0.95));transform:scale(0.15);transform-origin:center center;will-change:transform;}
+  #title-art-placeholder{font-size:11px;color:rgba(113,128,150,0.4);transform:scale(0.15);}
+  #poster-bottom{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;gap:18px;}
+  #rule-billing{font-family:"Hiragino Mincho ProN",serif;font-size:11px;color:rgba(203,213,224,0.78);line-height:1.85;letter-spacing:0.8px;text-shadow:0 2px 8px #000,0 0 12px #000;}
+  #rule-billing b{color:rgba(254,240,138,0.92);font-weight:500;}
+  #btn-start{position:relative;z-index:6;width:210px;padding:12px 0;font-size:14px;letter-spacing:5px;text-indent:5px;}
+  .intro-screen-base{position:absolute;inset:0;background:#000;z-index:48;display:none;flex-direction:column;justify-content:center;align-items:center;padding:28px 14px;text-align:center;overflow:hidden;}
+  .intro-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.28) blur(5px);transform:scale(1.06);z-index:-1;}
+  .story-container{display:flex;flex-direction:column;gap:28px;margin-bottom:44px;padding:10px 6px;width:100%;max-width:420px;}
+  .story-line{font-size:15px;color:#e2e8f0;line-height:1.9;letter-spacing:1.2px;text-shadow:0 2px 10px rgba(0,0,0,0.95),0 0 18px rgba(0,0,0,0.9);opacity:0;transform:translateY(12px);transition:opacity 1.4s ease,transform 1.4s ease;}
+  .story-line.show{opacity:1;transform:translateY(0);}
+  .story-line.spoken{color:#fc8181;font-weight:bold;font-size:16.5px;line-height:1.75;letter-spacing:1.4px;}
+  .rule-detail-card{display:flex;flex-direction:column;gap:16px;margin-bottom:32px;background:rgba(8,11,18,0.76);padding:24px 20px;border-radius:16px;border:1px solid rgba(246,224,94,0.38);backdrop-filter:blur(4px);width:100%;max-width:370px;text-align:left;box-shadow:0 12px 35px rgba(0,0,0,0.85);opacity:0;transform:translateY(12px);transition:opacity 0.6s ease,transform 0.6s ease;}
+  .rule-detail-card.show{opacity:1;transform:translateY(0);}
+  .rule-detail-header{text-align:center;font-family:"Times New Roman","Hiragino Mincho ProN",serif;font-size:16px;letter-spacing:3px;color:#f6e05e;border-bottom:1px solid rgba(246,224,94,0.35);padding-bottom:8px;}
+  .rule-item{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:#e2e8f0;line-height:1.65;}
+  .rule-bullet{color:#f6e05e;font-weight:bold;flex-shrink:0;}
+  .rule-item b{color:#fefcbf;}
+  .intro-next-btn{padding:12px 44px;font-size:14px;letter-spacing:2px;opacity:0;pointer-events:none;}
+  .intro-next-btn.show{opacity:1;pointer-events:auto;}
+  #ready-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.25);z-index:20;display:none;justify-content:center;align-items:flex-start;padding:44px 16px 0;}
+  #ready-window{padding:4px 8px;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .ready-msg{font-size:11px;font-weight:600;color:rgba(247,250,252,0.92);line-height:1.4;text-shadow:0 2px 6px rgba(0,0,0,0.95),0 0 10px rgba(0,0,0,0.9);}
+  #btn-ready-arrow{width:32px;height:32px;border-radius:50%;font-size:11px;display:flex;justify-content:center;align-items:center;flex-shrink:0;padding-left:2px;}
+  #full-blackout{position:absolute;inset:0;background:#000;z-index:60;pointer-events:none;opacity:0;transition:opacity 1.5s ease-in-out;}
+  #full-blackout.active{opacity:1;}
+  .gameplay-element{display:none;}
+  body.in-game #scene-layer,body.in-game #stage-blackout,body.in-game #flash-overlay,body.in-game #vignette-layer{display:block;}
+  body.in-game #locker-door,body.in-game #smartphone-wrapper,body.in-game #hud{display:flex;}
+  #scene-layer{position:absolute;inset:0;background:#000;z-index:1;overflow:hidden;}
+  #scene-layer.start-scare-mode{display:block!important;z-index:58!important;}
+  #scene-img{width:100%;height:100%;object-fit:cover;display:block;animation:roomBreath 8s ease-in-out infinite;}
+  @keyframes roomBreath{0%,100%{transform:scale(1.015) translate(0,0);}50%{transform:scale(1.015) translate(-1px,1.5px);}}
+  #stage-blackout{position:absolute;inset:0;background:#000;z-index:2;pointer-events:none;opacity:0;transition:opacity 0.08s ease;}
+  #stage-blackout.active{opacity:1;}
+  #scene-img.jumpscare-attack{animation:scareShake 0.06s infinite!important;}
+  @keyframes scareShake{0%{transform:translate(12px,-10px) scale(1.18) rotate(2deg);}25%{transform:translate(-14px,8px) scale(1.22) rotate(-2deg);}50%{transform:translate(10px,14px) scale(1.15) rotate(1deg);}75%{transform:translate(-12px,-12px) scale(1.22) rotate(-2.5deg);}100%{transform:translate(8px,6px) scale(1.18) rotate(1.5deg);}}
+  #flash-overlay{position:absolute;inset:0;background:rgba(210,230,255,0.18);z-index:2;pointer-events:none;opacity:0;}
+  #flash-overlay.active{opacity:1;}
+  #white-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,0.85) 0%,rgba(255,255,255,0.4) 100%);z-index:59;pointer-events:none;display:none;animation:whiteStrobe 0.07s infinite alternate;}
+  @keyframes whiteStrobe{from{opacity:0.05;}to{opacity:0.85;}}
+  #vignette-layer{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 45%,rgba(0,0,0,0.72) 100%);z-index:3;pointer-events:none;}
+  #locker-door{position:absolute;inset:0;z-index:4;transform:translateX(-94%);transition:transform 1.35s cubic-bezier(0.25,0.1,0.25,1);flex-direction:column;justify-content:center;align-items:center;box-shadow:15px 0 40px rgba(0,0,0,0.95);overflow:hidden;}
+  #locker-door.closed{transform:translateX(0%);transition:transform 0.18s cubic-bezier(0.2,0.9,0.3,1);}
+  #locker-door.blown-open{transform:translateX(-105%)!important;transition:transform 0.15s ease-in!important;}
+  #door-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:1;}
+  #door-fallback{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,0.18) 0px,rgba(0,0,0,0.18) 2px,transparent 2px,transparent 48px),linear-gradient(90deg,#2b180e 0%,#3d2314 35%,#4a2c1a 60%,#24130a 100%);border-right:8px solid #1a0d06;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:1;}
+  .wood-panel{width:72%;padding:22px 16px;margin-bottom:28%;border:4px solid #1f1108;background:rgba(20,10,4,0.35);display:flex;flex-direction:column;gap:14px;}
+  .slit{height:10px;background:#050302;border-bottom:1px solid #5c3822;}
+  #door-light-reflection{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle 320px at 50% 72%,rgba(240,248,255,0.22) 0%,rgba(215,232,255,0.11) 42%,rgba(195,215,255,0.04) 68%,transparent 92%);transform:translateX(94%);transition:transform 1.35s cubic-bezier(0.25,0.1,0.25,1);}
+  #locker-door.closed #door-light-reflection{transform:translateX(0%);transition:transform 0.18s cubic-bezier(0.2,0.9,0.3,1);}
+  #door-light-reflection.light-off{opacity:0!important;}
+  #smartphone-wrapper{position:absolute;bottom:0;left:50%;width:268px;height:38dvh;min-height:255px;max-height:320px;transform:translateX(-50%) translateY(0%);z-index:5;flex-direction:column;transition:transform 0.28s cubic-bezier(0.22,1,0.36,1);perspective:580px;}
+  #smartphone-wrapper.slide-down{transform:translateX(-50%) translateY(26%);}
+  #smartphone-wrapper.drop-away{transform:translateX(-50%) translateY(120%) rotate(12deg)!important;}
+  #ctrl-bar{display:flex;gap:10px;margin-bottom:8px;padding:0 4px;z-index:15;}
+  .action-btn{flex:1;background:rgba(10,12,18,0.65);color:rgba(226,232,240,0.85);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:8px 10px;font-size:11px;font-weight:600;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 6px 18px rgba(0,0,0,0.85),inset 0 1px 0 rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all 0.2s cubic-bezier(0.22,1,0.36,1);touch-action:none;}
+  .action-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;pointer-events:none;}
+  .action-btn span{pointer-events:none;}
+  .action-btn:active{transform:scale(0.96);}
+  .action-btn.on-light{background:rgba(250,240,205,0.18);color:#fefcbf;border-color:rgba(254,240,138,0.65);box-shadow:0 0 18px rgba(250,204,21,0.3),inset 0 0 10px rgba(254,240,138,0.2);}
+  .action-btn.on-door{background:rgba(185,28,28,0.28);color:#fecaca;border-color:rgba(248,113,113,0.55);box-shadow:0 0 16px rgba(220,38,38,0.28),inset 0 0 8px rgba(248,113,113,0.15);}
+  .action-btn.disabled-btn{opacity:0.35;pointer-events:none;}
+  #phone-sway-box{flex:1;width:100%;display:flex;flex-direction:column;animation:phoneNaturalSway 5.2s ease-in-out infinite;transform-style:preserve-3d;}
+  @keyframes phoneNaturalSway{0%,100%{transform:translate(0,0) rotate(0deg);}35%{transform:translate(1.2px,-3.5px) rotate(0.22deg);}70%{transform:translate(-1px,-1.8px) rotate(-0.18deg);}}
+  #phone-frame{position:relative;flex:1;background:#040507;border:4px solid #12151c;border-bottom:none;border-radius:26px 26px 0 0;padding:6px 6px 0 6px;display:flex;flex-direction:column;box-shadow:0 -12px 38px rgba(175,210,255,0.15),0 -3px 16px rgba(220,240,255,0.1),0 -6px 25px rgba(0,0,0,0.98);overflow:hidden;transform-origin:bottom center;transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),box-shadow 0.35s ease;}
+  #smartphone-wrapper.tilt-forward #phone-frame{transform:rotateX(25deg) translateY(9px) scale(0.97);box-shadow:0 -35px 70px rgba(255,250,220,0.32),0 -12px 30px rgba(255,245,200,0.22),0 10px 30px rgba(0,0,0,0.98);}
+  #phone-frame::after{content:"";position:absolute;inset:0;border-radius:22px 22px 0 0;background:radial-gradient(circle at 50% 18%,rgba(255,255,255,0.14) 0%,transparent 60%),linear-gradient(135deg,rgba(255,255,255,0.11) 0%,rgba(255,255,255,0.02) 38%,transparent 55%);pointer-events:none;z-index:10;}
+  #phone-frame.glow-off{box-shadow:0 -6px 25px rgba(0,0,0,0.98)!important;transition:none!important;}
+  #phone-frame.glow-off::after{opacity:0!important;}
+  .phone-speaker{width:38px;height:4px;background:#14171f;border-radius:2px;margin:0 auto 5px;}
+  #phone-screen{position:relative;flex:1;background:#354256;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden;}
+  #flashlight-screen-overlay{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#1e2430 0%,#090b10 100%);z-index:8;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;opacity:0;pointer-events:none;transition:opacity 0.25s ease;}
+  #smartphone-wrapper.tilt-forward #flashlight-screen-overlay{opacity:1;pointer-events:auto;}
+  .ios-torch-circle{width:86px;height:86px;border-radius:50%;background:rgba(255,250,225,0.95);box-shadow:0 0 35px rgba(255,240,170,0.75),0 0 12px rgba(255,255,255,0.9),inset 0 0 15px #fff;display:flex;justify-content:center;align-items:center;}
+  .ios-torch-circle svg{width:44px;height:44px;stroke:#111318;stroke-width:2;fill:#111318;}
+  .ios-torch-label{font-size:11px;font-weight:600;letter-spacing:2px;color:rgba(254,240,138,0.9);}
+  #lock-screen-overlay{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,#151924 0%,#07090e 100%);z-index:9;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:16px 12px 10px;opacity:0;pointer-events:none;transition:opacity 0.12s ease;overflow:hidden;}
+  #smartphone-wrapper.locked #lock-screen-overlay{opacity:1;}
+  #lock-blackout-mask{position:absolute;inset:0;background:#000;z-index:12;opacity:0;pointer-events:none;}
+  #lock-screen-overlay.flicker-off #lock-blackout-mask{opacity:1;}
+  #lock-scare-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:11;display:none;}
+  .lock-top-group{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .lock-padlock-icon{width:14px;height:14px;stroke:rgba(240,246,255,0.85);stroke-width:2;fill:none;margin-bottom:2px;}
+  #lock-clock-time{font-size:46px;font-weight:200;letter-spacing:2px;color:rgba(248,252,255,0.95);line-height:1.05;text-shadow:0 0 18px rgba(220,238,255,0.35);font-variant-numeric:tabular-nums;}
+  .lock-bottom-group{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;}
+  .lock-Status-note{font-size:10px;color:rgba(203,213,224,0.65);letter-spacing:0.5px;}
+  .lock-home-bar{width:88px;height:4px;background:rgba(255,255,255,0.65);border-radius:2px;}
+  #battery-dead-overlay{position:absolute;inset:0;background:#000;z-index:14;display:none;justify-content:center;align-items:center;}
+  #battery-dead-icon{width:76px;height:40px;opacity:0;}
+  #battery-dead-icon.visible{opacity:1;}
+  #line-header{background:#1d2430;color:#fff;padding:5px 10px;font-size:11px;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
+  #battery-disp{color:#68d391;font-size:10px;font-weight:bold;}
+  .battery-critical{color:#ff4444!important;animation:blinkCrit 0.4s infinite alternate;}
+  @keyframes blinkCrit{from{opacity:1;}to{opacity:0.3;}}
+  #line-chat-area{flex:1;padding:6px 8px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;overflow:hidden;}
+  .my-row{display:flex;justify-content:flex-end;align-items:flex-end;gap:4px;}
+  .read-label{font-size:9px;color:#cbd5e0;line-height:1;}
+  #last-sent-bubble{background:#8de055;color:#111;padding:4px 8px;border-radius:12px;border-top-right-radius:2px;font-size:11px;max-width:82%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .friend-row{display:flex;align-items:flex-start;gap:5px;transition:opacity 0.2s ease;}
+  .friend-icon{width:20px;height:20px;border-radius:50%;background:#f6ad55;color:#1a202c;font-size:10px;display:flex;justify-content:center;align-items:center;flex-shrink:0;font-weight:bold;}
+  #friend-msg{background:#fff;color:#111;padding:4px 8px;border-radius:12px;border-top-left-radius:2px;font-size:11px;line-height:1.3;max-width:85%;}
+  #line-input-bar{background:#e2e6ec;padding:4px 6px;display:flex;align-items:center;gap:5px;border-top:1px solid #cbd5e0;}
+  #typed-box{flex:1;background:#fff;border:1px solid #cbd5e0;border-radius:14px;padding:3px 8px;display:flex;justify-content:space-between;align-items:center;min-height:24px;}
+  #typed-text{font-size:12px;font-weight:bold;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #next-char-hint{font-size:10px;color:#06c755;font-weight:bold;flex-shrink:0;margin-left:4px;}
+  .send-icon{width:22px;height:22px;border-radius:50%;background:#06c755;color:#fff;font-size:10px;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
+  #keypad{background:#c4cad4;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px 8px 10px;}
+  .key-btn{background:#fff;color:#111;border:none;border-radius:6px;padding:8px 0;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 2px 0 #8e96a4;}
+  .key-btn:active{background:#e5e7eb;transform:translateY(1px);box-shadow:0 1px 0 #8e96a4;}
+  #hud{position:absolute;top:12px;left:14px;right:14px;z-index:10;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,0.65);text-shadow:0 1px 4px #000;pointer-events:none;}
+  #overlay{position:absolute;inset:0;background:#000;z-index:35;display:none;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:10px 14px;text-align:center;opacity:0;transition:opacity 0.55s ease;overflow:hidden;}
+  #overlay.fade-in{opacity:1;}
+  #window-line{background:#11141d;border:1px solid #2d3748;padding:10px 12px;border-radius:16px;width:100%;max-width:355px;box-shadow:0 12px 32px rgba(0,0,0,0.9);display:flex;flex-direction:column;gap:6px;opacity:0;transform:translateY(145px);transition:transform 0.7s cubic-bezier(0.22,1,0.36,1),opacity 0.4s ease;}
+  #window-line.center-stage{opacity:1;transform:translateY(145px);}
+  #window-line.move-to-top{opacity:1;transform:translateY(0);}
+  #final-chat-window{background:#354256;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;text-align:left;max-height:150px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border:2px solid #1d2430;}
+  .fc-row-me{display:flex;justify-content:flex-end;align-items:flex-end;gap:4px;}
+  .fc-bubble-me{background:#8de055;color:#111;padding:5px 9px;border-radius:12px;border-top-right-radius:3px;font-size:11px;font-weight:bold;max-width:85%;}
+  .fc-row-friend{display:flex;align-items:flex-start;gap:6px;opacity:0;transform:translateY(5px);transition:opacity 0.3s ease,transform 0.3s ease;}
+  .fc-row-friend.visible{opacity:1;transform:translateY(0);}
+  .fc-bubble-friend{background:#fff;color:#111;padding:5px 9px;border-radius:12px;border-top-left-radius:3px;font-size:11px;line-height:1.35;max-width:85%;}
+  #death-reason{font-size:12px;font-weight:bold;color:#e2e8f0;line-height:1.45;}
+  #window-media{background:#11141d;border:1px solid #2d3748;padding:10px 12px;border-radius:16px;width:100%;max-width:355px;box-shadow:0 12px 32px rgba(0,0,0,0.9);display:flex;flex-direction:column;gap:8px;overflow:hidden;opacity:0;transition:opacity 0.35s ease;}
+  #window-media.visible{opacity:1;}
+  #result-art-box{width:100%;max-width:255px;aspect-ratio:4/3;margin:0 auto;background:#080a0f;border-radius:8px;overflow:hidden;display:flex;justify-content:center;align-items:center;opacity:0;transform:translateX(115%);transition:transform 0.65s cubic-bezier(0.22,1,0.36,1),opacity 0.5s ease;}
+  #result-art-box.slide-in-right{opacity:1;transform:translateX(0);}
+  #result-img{width:100%;height:100%;object-fit:contain;display:none;}
+  #result-art-placeholder{font-size:11px;color:#4b5563;}
+  #result-footer-section{display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateY(24px);transition:transform 0.65s ease,opacity 0.65s ease;}
+  #result-footer-section.float-up{opacity:1;transform:translateY(0);}
+  .end-btn-row{display:flex;gap:8px;}
+  .end-btn{flex:1;padding:9px 6px;border-radius:22px;font-weight:bold;font-size:12px;border:none;cursor:pointer;text-decoration:none;display:flex;justify-content:center;align-items:center;}
+  #share-link{background:linear-gradient(180deg,#2b5668 0%,#1b3947 100%);color:#f3efe6;border:1px solid rgba(144,205,244,0.35);}
+  #btn-retry-end{background:linear-gradient(180deg,#2e1b12 0%,#1c100a 100%);color:#e6e1d6;border:1px solid rgba(196,123,10,0.35);}
+  #creator-credit{margin-top:2px;padding-top:8px;border-top:1px solid #2d3748;display:flex;align-items:center;justify-content:center;gap:10px;text-align:left;}
+  #creator-icon{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid #4a5568;background:#1a202c;flex-shrink:0;}
+  .credit-text{font-size:11px;color:#cbd5e0;line-height:1.45;}
+  .credit-text a{color:#63b3ed;text-decoration:underline;font-weight:bold;word-break:break-all;}
 </style>
 </head>
 <body>
 
 <div id="game-container">
-  <!-- =========================================
-       ★第1画面：ローディング画面（100%で「次へ」を押すと全音声を音量ゼロでアンロック）
-       ========================================= -->
+  <!-- 第1画面：ローディング画面（全音声データをオンメモリに格納） -->
   <div id="loading-screen">
     <div id="loading-content">
       <div class="loading-title">LOADING</div>
-      <div id="loading-bar-bg">
-        <div id="loading-bar-fill"></div>
-      </div>
+      <div id="loading-bar-bg"><div id="loading-bar-fill"></div></div>
       <div id="loading-percent-text">音声データを準備中... 0%</div>
       <button type="button" id="btn-loading-next" class="crimson-btn">次へ</button>
     </div>
   </div>
 
-  <!-- =========================================
-       ★第2画面：音あり推奨画面（「次へ」を押した瞬間にタイトルBGMを音量ゼロで再生開始）
-       ========================================= -->
+  <!-- 第2画面：音あり推奨画面 -->
   <div id="sound-notice-screen">
     <div id="sound-notice-content">
       <svg class="sound-notice-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -944,9 +222,7 @@
   <div id="boot-veil"></div>
   <div id="full-blackout"></div>
 
-  <!-- =========================================
-       1. スタート画面
-       ========================================= -->
+  <!-- 1. スタート画面 -->
   <div id="start-screen">
     <div id="start-heartbeat-vignette"></div>
     <button type="button" id="btn-sound" class="stagger-item">🔊 SOUND ON</button>
@@ -961,17 +237,12 @@
       <div id="title-art-placeholder">Title Illustration (title1.png / .jpg)</div>
     </div>
     <div id="poster-bottom" class="stagger-item">
-      <div id="rule-billing">
-        雷とライトで気配を探り、ママに<b>10通のLINE</b>を送れ。<br>
-        近くまで迫られたら、タンスを閉めてやり過ごすこと。
-      </div>
+      <div id="rule-billing">雷とライトで気配を探り、ママに<b>10通のLINE</b>を送れ。<br>近くまで迫られたら、タンスを閉めてやり過ごすこと。</div>
       <button type="button" id="btn-start" class="crimson-btn">START</button>
     </div>
   </div>
 
-  <!-- =========================================
-       2. 物語説明画面（背景 X）
-       ========================================= -->
+  <!-- 2. 物語説明画面 -->
   <div id="story-screen" class="intro-screen-base">
     <img id="story-bg-img" class="intro-bg-img" alt="">
     <div class="story-container">
@@ -983,49 +254,30 @@
     <button type="button" id="btn-story-next" class="intro-next-btn yellow-outline-btn">次に進む</button>
   </div>
 
-  <!-- =========================================
-       3. ルール説明画面（背景 B）
-       ========================================= -->
+  <!-- 3. ルール説明画面 -->
   <div id="rule-screen" class="intro-screen-base">
     <img id="rule-bg-img" class="intro-bg-img" alt="">
     <div class="rule-detail-card" id="rule-detail-card">
       <div class="rule-detail-header">HOW TO PLAY</div>
-      <div class="rule-item">
-        <span class="rule-bullet">◆</span>
-        <div><b>雷やライトで姿を確認しよう</b><br>暗闇の中をぬいぐるみが近づいてきます。雷の光やスマホのライトで位置を確かめましょう。</div>
-      </div>
-      <div class="rule-item">
-        <span class="rule-bullet">◆</span>
-        <div><b>近くまで来たら、タンスの扉を閉めよう</b><br>すぐ近くまで迫られたら、「閉める」を押し続けてタンスの扉を閉め、離れていくのを待ちましょう。</div>
-      </div>
-      <div class="rule-item">
-        <span class="rule-bullet">◆</span>
-        <div><b>LINEを10通送り切ろう</b><br>ぬいぐるみに警戒しながら、もうすぐ帰ってくるママにメッセージを10通送り切れば生還です。</div>
-      </div>
+      <div class="rule-item"><span class="rule-bullet">◆</span><div><b>雷やライトで姿を確認しよう</b><br>暗闇の中をぬいぐるみが近づいてきます。雷の光やスマホのライトで位置を確かめましょう。</div></div>
+      <div class="rule-item"><span class="rule-bullet">◆</span><div><b>近くまで来たら、タンスの扉を閉めよう</b><br>すぐ近くまで迫られたら、「閉める」を押し続けてタンスの扉を閉め、離れていくのを待ちましょう。</div></div>
+      <div class="rule-item"><span class="rule-bullet">◆</span><div><b>LINEを10通送り切ろう</b><br>ぬいぐるみに警戒しながら、もうすぐ帰ってくるママにメッセージを10通送り切れば生還です。</div></div>
     </div>
     <button type="button" id="btn-rule-next" class="intro-next-btn yellow-outline-btn">次に進む</button>
   </div>
 
-  <!-- =========================================
-       プレイ開始前の合図
-       ========================================= -->
+  <!-- プレイ開始前の合図 -->
   <div id="ready-modal-backdrop">
     <div id="ready-window">
-      <div class="ready-msg">
-        雷やライトで前を警戒しつつ、ママにメッセージを送り切ろう
-      </div>
+      <div class="ready-msg">雷やライトで前を警戒しつつ、ママにメッセージを送り切ろう</div>
       <button type="button" id="btn-ready-arrow" class="crimson-btn heartbeat-only" aria-label="プレイ開始">▶</button>
     </div>
   </div>
 
-  <div id="hud" class="gameplay-element">
-    <span id="hud-progress">SOS: 0/10</span>
-  </div>
+  <div id="hud" class="gameplay-element"><span id="hud-progress">SOS: 0/10</span></div>
 
-  <!-- Layer 1: A〜J メイン画像部 -->
-  <div id="scene-layer" class="gameplay-element">
-    <img id="scene-img" alt="scene">
-  </div>
+  <!-- Layer 1: メイン画像部 -->
+  <div id="scene-layer" class="gameplay-element"><img id="scene-img" alt="scene"></div>
   <div id="stage-blackout" class="gameplay-element"></div>
   <div id="flash-overlay" class="gameplay-element"></div>
   <div id="vignette-layer" class="gameplay-element"></div>
@@ -1035,9 +287,7 @@
   <div id="locker-door" class="gameplay-element">
     <img id="door-img" alt="wardrobe door">
     <div id="door-fallback">
-      <div class="wood-panel">
-        <div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div>
-      </div>
+      <div class="wood-panel"><div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div></div>
     </div>
     <div id="door-light-reflection"></div>
   </div>
@@ -1046,19 +296,11 @@
   <div id="smartphone-wrapper" class="gameplay-element">
     <div id="ctrl-bar">
       <button type="button" class="action-btn" id="btn-door">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="2"/>
-          <line x1="12" y1="2" x2="12" y2="22"/>
-          <line x1="9" y1="12" x2="9" y2="12.01"/>
-          <line x1="15" y1="12" x2="15" y2="12.01"/>
-        </svg>
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="9" y1="12" x2="9" y2="12.01"/><line x1="15" y1="12" x2="15" y2="12.01"/></svg>
         <span id="door-btn-label">閉める</span>
       </button>
       <button type="button" class="action-btn" id="btn-light">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
         <span id="light-btn-label">ライト</span>
       </button>
     </div>
@@ -1068,63 +310,30 @@
         <div class="phone-speaker"></div>
         <div id="phone-screen">
           <div id="flashlight-screen-overlay">
-            <div class="ios-torch-circle">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 2h8l-1.5 6v12a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8L8 2z"/>
-                <line x1="12" y1="12" x2="12" y2="15" stroke="#fff" stroke-width="2.2"/>
-              </svg>
-            </div>
+            <div class="ios-torch-circle"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8l-1.5 6v12a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8L8 2z"/><line x1="12" y1="12" x2="12" y2="15" stroke="#fff" stroke-width="2.2"/></svg></div>
             <div class="ios-torch-label">LIGHT ON</div>
           </div>
-
           <div id="lock-screen-overlay">
             <div id="lock-blackout-mask"></div>
             <img id="lock-scare-img" alt="scare">
             <div class="lock-top-group">
-              <svg class="lock-padlock-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="5" y="11" width="14" height="10" rx="2"/>
-                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-              </svg>
+              <svg class="lock-padlock-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
               <div id="lock-clock-time">6:30</div>
             </div>
-            <div class="lock-bottom-group">
-              <div class="lock-Status-note">画面ロック中</div>
-              <div class="lock-home-bar"></div>
-            </div>
+            <div class="lock-bottom-group"><div class="lock-Status-note">画面ロック中</div><div class="lock-home-bar"></div></div>
           </div>
-
           <div id="battery-dead-overlay">
-            <svg id="battery-dead-icon" viewBox="0 0 80 42">
-              <rect x="2" y="4" width="68" height="34" rx="6" fill="none" stroke="#ef4444" stroke-width="3.5"/>
-              <path d="M73 14v14" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
-              <rect x="7" y="9" width="6" height="24" rx="2" fill="#ef4444"/>
-            </svg>
+            <svg id="battery-dead-icon" viewBox="0 0 80 42"><rect x="2" y="4" width="68" height="34" rx="6" fill="none" stroke="#ef4444" stroke-width="3.5"/><path d="M73 14v14" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><rect x="7" y="9" width="6" height="24" rx="2" fill="#ef4444"/></svg>
           </div>
-
-          <div id="line-header">
-            <span>＜ ママ</span>
-            <span id="battery-disp">🔋100%</span>
-          </div>
-
+          <div id="line-header"><span>＜ ママ</span><span id="battery-disp">🔋100%</span></div>
           <div id="line-chat-area">
-            <div class="my-row" id="my-last-row" style="display:none;">
-              <span class="read-label">既読</span>
-              <div id="last-sent-bubble"></div>
-            </div>
-            <div class="friend-row" id="friend-last-row">
-              <div class="friend-icon">母</div>
-              <div id="friend-msg">もうすぐ帰るけど、ご飯食べた？</div>
-            </div>
+            <div class="my-row" id="my-last-row" style="display:none;"><span class="read-label">既読</span><div id="last-sent-bubble"></div></div>
+            <div class="friend-row" id="friend-last-row"><div class="friend-icon">母</div><div id="friend-msg">もうすぐ帰るけど、ご飯食べた？</div></div>
           </div>
-
           <div id="line-input-bar">
-            <div id="typed-box">
-              <div id="typed-text"></div>
-              <div id="next-char-hint"></div>
-            </div>
+            <div id="typed-box"><div id="typed-text"></div><div id="next-char-hint"></div></div>
             <div class="send-icon">▶</div>
           </div>
-
           <div id="keypad">
             <button type="button" class="key-btn" id="k0">あ</button>
             <button type="button" class="key-btn" id="k1">い</button>
@@ -1143,10 +352,7 @@
       <div id="final-chat-window"></div>
     </div>
     <div id="window-media">
-      <div id="result-art-box">
-        <img id="result-img" alt="result illustration">
-        <div id="result-art-placeholder">Result Illustration (960×720)</div>
-      </div>
+      <div id="result-art-box"><img id="result-img" alt="result illustration"><div id="result-art-placeholder">Result Illustration</div></div>
       <div id="result-footer-section">
         <div class="end-btn-row">
           <a id="share-link" class="end-btn" href="#" target="_blank" rel="noopener noreferrer">𝕏 で結果をポスト</a>
@@ -1154,10 +360,7 @@
         </div>
         <div id="creator-credit">
           <img id="creator-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%232d3748'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23cbd5e0' font-size='14' font-family='sans-serif'%3Eも%3C/text%3E%3C/svg%3E" alt="icon">
-          <div class="credit-text">
-            製作・キャラクターデザイン:もりちく<br>
-            <a href="https://morichiku.github.io/" target="_blank" rel="noopener noreferrer">https://morichiku.github.io/</a>
-          </div>
+          <div class="credit-text">製作・キャラクターデザイン:もりちく<br><a href="https://morichiku.github.io/" target="_blank" rel="noopener noreferrer">https://morichiku.github.io/</a></div>
         </div>
       </div>
     </div>
@@ -1172,33 +375,21 @@
   // 1. 画像ローダー
   // ==========================================
   const KEYS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-  const IMAGES = {};
-  const END_IMAGES = {};
-  const loadedStatus = {};
+  const IMAGES = {}, END_IMAGES = {}, loadedStatus = {};
   const loadStatusEl = document.getElementById('load-status');
   const candidateDirs = ["images/", "./", ""];
   const candidateExts = [".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".webp"];
 
   function resolveImageKey(key) {
     let candidates = [];
-    candidateDirs.forEach(dir => {
-      candidateExts.forEach(ext => {
-        candidates.push(`${dir}${key}${ext}`);
-        candidates.push(`${dir}${key.toLowerCase()}${ext}`);
-      });
-    });
+    candidateDirs.forEach(dir => candidateExts.forEach(ext => { candidates.push(`${dir}${key}${ext}`); candidates.push(`${dir}${key.toLowerCase()}${ext}`); }));
     let idx = 0;
     function tryNext() {
-      if (idx >= candidates.length) {
-        loadedStatus[key] = false;
-        updateLoadSummary();
-        return;
-      }
+      if (idx >= candidates.length) { loadedStatus[key] = false; updateLoadSummary(); return; }
       const url = candidates[idx++];
       const testImg = new Image();
       testImg.onload = () => {
-        IMAGES[key] = url;
-        loadedStatus[key] = true;
+        IMAGES[key] = url; loadedStatus[key] = true;
         if (key === "A" && !document.getElementById('scene-img').src) document.getElementById('scene-img').src = url;
         if (key === "B") document.getElementById('rule-bg-img').src = url;
         if (key === "J") document.getElementById('lock-scare-img').src = url;
@@ -1212,11 +403,7 @@
 
   function resolveSpecialImage(namesList, onSuccess) {
     let candidates = [];
-    candidateDirs.forEach(dir => {
-      namesList.forEach(name => {
-        candidateExts.forEach(ext => candidates.push(`${dir}${name}${ext}`));
-      });
-    });
+    candidateDirs.forEach(dir => namesList.forEach(name => candidateExts.forEach(ext => candidates.push(`${dir}${name}${ext}`))));
     let idx = 0;
     function tryNext() {
       if (idx >= candidates.length) return;
@@ -1230,285 +417,262 @@
   }
 
   let storyBgXUrl = null;
-  resolveSpecialImage(["X", "x"], url => {
-    storyBgXUrl = url;
-    document.getElementById('story-bg-img').src = url;
-  });
-  resolveSpecialImage(["door", "DOOR", "K", "k", "tansu"], url => {
-    const d = document.getElementById('door-img');
-    d.src = url;
-    d.style.display = 'block';
-    document.getElementById('door-fallback').style.display = 'none';
-  });
+  resolveSpecialImage(["X", "x"], url => { storyBgXUrl = url; document.getElementById('story-bg-img').src = url; });
+  resolveSpecialImage(["door", "DOOR", "K", "k", "tansu"], url => { const d = document.getElementById('door-img'); d.src = url; d.style.display = 'block'; document.getElementById('door-fallback').style.display = 'none'; });
   let titleImg1Url = null;
-  resolveSpecialImage(["title1", "title_1", "TITLE1", "title", "TITLE"], url => {
-    titleImg1Url = url;
-    const t = document.getElementById('title-img');
-    t.src = url;
-    t.style.display = 'block';
-    document.getElementById('title-art-placeholder').style.display = 'none';
-  });
+  resolveSpecialImage(["title1", "title_1", "TITLE1", "title", "TITLE"], url => { titleImg1Url = url; const t = document.getElementById('title-img'); t.src = url; t.style.display = 'block'; document.getElementById('title-art-placeholder').style.display = 'none'; });
   let titleImg2Url = null;
   resolveSpecialImage(["title2", "title_2", "TITLE2"], url => { titleImg2Url = url; });
   resolveSpecialImage(["icon", "ICON", "morichiku", "profile"], url => { document.getElementById('creator-icon').src = url; });
-
-  for (let i = 0; i <= 10; i++) {
-    resolveSpecialImage([`end${i}`, `END${i}`, `end_${i}`, `${i}`, `gameover${i}`, `over${i}`], url => { END_IMAGES[i] = url; });
-  }
+  for (let i = 0; i <= 10; i++) resolveSpecialImage([`end${i}`, `END${i}`, `end_${i}`, `${i}`], url => { END_IMAGES[i] = url; });
   resolveSpecialImage(["clear", "CLEAR", "end_clear", "L", "l"], url => { END_IMAGES.clear = url; });
 
   function updateLoadSummary() {
     const keysDone = Object.keys(loadedStatus);
     if (keysDone.length < KEYS.length) return;
     const missing = KEYS.filter(k => !loadedStatus[k]);
-    loadStatusEl.innerText = missing.length === 0 ? "" : `※未検出の画像: ${missing.join(", ")}`;
+    if (loadStatusEl) loadStatusEl.innerText = missing.length === 0 ? "" : `※未検出の画像: ${missing.join(", ")}`;
   }
   KEYS.forEach(k => resolveImageKey(k));
 
   // ==========================================
-  // 2. ★2段階ボタン無音再生アンロック方式サウンドシステム
-  // （標準HTMLAudio直接制御 ＋ ループ音はボタン押下0秒で無音スタートしてミュート解除で発音）
+  // 2. Web Audio API オンメモリ・サウンドシステム
+  // （通信途切れゼロ・iOS音量完全対応・タンス閉鎖時のローパスフィルターこもり音対応）
   // ==========================================
-  let isMuted = false;
-  let currentScreenName = "start";
-  let rainFadeInterval = null;
+  let isMuted = false, currentScreenName = "start", rainFadeInterval = null;
 
   const VOL_CONFIG = {
     titleBgm:  { val: 15,  audioKey: "titleBgm", boost: 1, muffleWhenDoor: false },
-    rain:      { val: 14,  audioKey: "rain", boost: 1, muffleWhenDoor: true },
-    tap:       { val: 32,  audioKey: "tap", boost: 1, muffleWhenDoor: false },
-    notify:    { val: 60,  audioKey: "notify", boost: 1, muffleWhenDoor: false },
-    thunder:   { val: 76,  audioKey: "thunder", boost: 1, muffleWhenDoor: true },
-    plushDrop: { val: 90,  audioKey: "plushDrop", boost: 1, muffleWhenDoor: true },
+    rain:      { val: 14,  audioKey: "rain",     boost: 1, muffleWhenDoor: true },
+    tap:       { val: 32,  audioKey: "tap",      boost: 1, muffleWhenDoor: false },
+    notify:    { val: 60,  audioKey: "notify",   boost: 1, muffleWhenDoor: false },
+    thunder:   { val: 76,  audioKey: "thunder",  boost: 1, muffleWhenDoor: true },
+    plushDrop: { val: 90,  audioKey: "plushDrop",boost: 1, muffleWhenDoor: true },
     footstep3: { val: 100, audioKey: "footstep", boost: 3, muffleWhenDoor: true },
     footstep4: { val: 100, audioKey: "footstep", boost: 3, muffleWhenDoor: true },
-    breath:    { val: 100, audioKey: "breath", boost: 1, muffleWhenDoor: false },
-    laugh:     { val: 18,  audioKey: "laugh", boost: 1, muffleWhenDoor: true },
-    doorClose: { val: 100, audioKey: "doorClose", boost: 1, muffleWhenDoor: false },
+    breath:    { val: 100, audioKey: "breath",   boost: 1, muffleWhenDoor: false },
+    laugh:     { val: 18,  audioKey: "laugh",    boost: 1, muffleWhenDoor: true },
+    doorClose: { val: 100, audioKey: "doorClose",boost: 1, muffleWhenDoor: false },
     doorOpen:  { val: 11,  audioKey: "doorOpen", boost: 1, muffleWhenDoor: false },
-    jumpscare: { val: 80,  audioKey: null, boost: 1, muffleWhenDoor: false },
-    clear:     { val: 14,  audioKey: "clear", boost: 1, muffleWhenDoor: false }
+    jumpscare: { val: 80,  audioKey: null,       boost: 1, muffleWhenDoor: false },
+    clear:     { val: 14,  audioKey: "clear",    boost: 1, muffleWhenDoor: false }
   };
 
-  // GitHub Pagesの大文字・小文字区別にも対応できるよう候補を網羅
-  const SOUND_BASE_NAMES = {
-    titleBgm:  ["title_bgm", "TITLE_BGM", "Title_bgm", "title", "TITLE", "bgm", "BGM"],
-    rain:      ["rain", "RAIN", "Rain"],
-    thunder:   ["thunder", "THUNDER", "Thunder"],
-    plushDrop: ["plush_drop", "PLUSH_DROP", "Plush_drop", "plushdrop"],
-    footstep:  ["footstep", "FOOTSTEP", "Footstep"],
-    breath:    ["breath", "BREATH", "Breath"],
-    laugh:     ["laugh", "LAUGH", "Laugh"],
-    doorClose: ["door_close", "DOOR_CLOSE", "Door_close"],
-    doorOpen:  ["door_open", "DOOR_OPEN", "Door_open"],
-    tap:       ["tap", "TAP", "Tap"],
-    notify:    ["line_notify", "LINE_NOTIFY", "notify", "NOTIFY"],
-    clear:     ["clear", "CLEAR", "Clear"]
+  // メモリへ事前ダウンロードするMP3ファイル一覧（tapとnotifyもあれば読み込み、無ければ内蔵シンセ音を使用）
+  const SOUND_FILES = {
+    titleBgm:  ["sounds/title_bgm.mp3", "title_bgm.mp3", "sounds/title.mp3", "title.mp3", "sounds/bgm.mp3", "bgm.mp3"],
+    rain:      ["sounds/rain.mp3", "rain.mp3"],
+    thunder:   ["sounds/thunder.mp3", "thunder.mp3"],
+    plushDrop: ["sounds/plush_drop.mp3", "plush_drop.mp3"],
+    footstep:  ["sounds/footstep.mp3", "footstep.mp3"],
+    breath:    ["sounds/breath.mp3", "breath.mp3"],
+    laugh:     ["sounds/laugh.mp3", "laugh.mp3"],
+    doorClose: ["sounds/door_close.mp3", "door_close.mp3"],
+    doorOpen:  ["sounds/door_open.mp3", "door_open.mp3"],
+    clear:     ["sounds/clear.mp3", "clear.mp3"],
+    tap:       ["sounds/tap.mp3", "tap.mp3"],
+    notify:    ["sounds/line_notify.mp3", "line_notify.mp3"]
   };
 
-  const audios = {};
-  const audioPools = {};
-  const soundKeysList = Object.keys(SOUND_BASE_NAMES);
-  const totalAudioCount = soundKeysList.length;
+  let audioCtx = null;
+  const rawBuffers = {};
+  const decodedBuffers = {};
+  const activeSources = {};
+  const fallbackAudios = {};
+
+  function ensureAudioCtx() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function decodeBufferAsync(ctx, arrayBuf) {
+    return new Promise(resolve => {
+      if (!ctx || !arrayBuf) return resolve(null);
+      try {
+        const copy = arrayBuf.slice(0);
+        const res = ctx.decodeAudioData(
+          copy,
+          buf => resolve(buf || null),
+          () => resolve(null)
+        );
+        if (res && typeof res.then === 'function') {
+          res.then(buf => resolve(buf || null)).catch(() => resolve(null));
+        }
+      } catch (e) { resolve(null); }
+    });
+  }
+
+  const soundKeysList = Object.keys(SOUND_FILES);
   let loadedAudioCount = 0;
 
   function incrementLoadingProgress() {
     loadedAudioCount++;
-    const pct = Math.min(100, Math.round((loadedAudioCount / totalAudioCount) * 100));
+    const pct = Math.min(100, Math.round((loadedAudioCount / soundKeysList.length) * 100));
     const fillEl = document.getElementById('loading-bar-fill');
     const txtEl = document.getElementById('loading-percent-text');
     const nextBtn = document.getElementById('btn-loading-next');
-
     if (fillEl) fillEl.style.width = `${pct}%`;
-    if (txtEl) {
-      txtEl.innerText = pct < 100 ? `音声データを準備中... ${pct}%` : `準備完了 (100%)`;
-    }
-    if (pct >= 100 && nextBtn) {
-      nextBtn.classList.add('ready');
-    }
+    if (txtEl) txtEl.innerText = pct < 100 ? `音声データを準備中... ${pct}%` : `準備完了 (100%)`;
+    if (pct >= 100 && nextBtn) nextBtn.classList.add('ready');
   }
 
-  function loadSingleAudioKey(key) {
-    const isLoop = (key === 'breath' || key === 'titleBgm' || key === 'rain');
-    const names = SOUND_BASE_NAMES[key];
-    const dirs = ["sounds/", "./", ""];
-    const exts = [".mp3", ".MP3"];
-    const candidates = [];
-
-    dirs.forEach(d => {
-      names.forEach(n => {
-        exts.forEach(e => candidates.push(`${d}${n}${e}`));
-      });
-    });
-
-    let idx = 0;
-    let finished = false;
-    function finishOne() {
-      if (finished) return;
-      finished = true;
-      incrementLoadingProgress();
+  // ローディング画面で全MP3を丸ごとメモリ（ArrayBuffer）にダウンロードしきる（通信途切れを完全防止）
+  async function preloadSingleSound(key) {
+    const paths = SOUND_FILES[key];
+    for (const url of paths) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const ab = await res.arrayBuffer();
+          if (ab && ab.byteLength > 100) {
+            rawBuffers[key] = ab;
+            const ctx = ensureAudioCtx();
+            if (ctx) {
+              const decoded = await decodeBufferAsync(ctx, ab);
+              if (decoded) decodedBuffers[key] = decoded;
+            }
+            break;
+          }
+        }
+      } catch (e) {}
     }
-
-    function tryNextUrl() {
-      if (idx >= candidates.length) {
-        finishOne();
-        return;
-      }
-      const url = candidates[idx++];
+    // 万が一ローカル(file://)等でfetchできなかった場合のフォールバック準備
+    if (!rawBuffers[key] && key !== 'tap' && key !== 'notify') {
       const a = new Audio();
       a.preload = "auto";
-      a.loop = isLoop;
-
-      let settled = false;
-      const onReady = () => {
-        if (settled) return;
-        settled = true;
-        audios[key] = a;
-        if (key === 'footstep') {
-          const p1 = new Audio(url); p1.preload = "auto";
-          const p2 = new Audio(url); p2.preload = "auto";
-          audioPools.footstep = [p1, p2];
-        }
-        finishOne();
-      };
-
-      const onError = () => {
-        if (settled) return;
-        settled = true;
-        tryNextUrl();
-      };
-
-      a.addEventListener('canplaythrough', onReady, { once: true });
-      a.addEventListener('loadeddata', onReady, { once: true });
-      a.addEventListener('canplay', onReady, { once: true });
-      a.addEventListener('error', onError, { once: true });
-
-      a.src = url;
-      a.load();
+      a.loop = (key === 'breath' || key === 'titleBgm' || key === 'rain');
+      a.src = paths[0];
+      fallbackAudios[key] = a;
     }
-    tryNextUrl();
-    // 万が一通信制限等でロードイベントが来ない場合でも最大3.5秒で進行させる
-    setTimeout(finishOne, 3500);
+    incrementLoadingProgress();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     currentScreenName = 'start';
-    soundKeysList.forEach(k => loadSingleAudioKey(k));
+    soundKeysList.forEach(k => preloadSingleSound(k));
   });
 
-  // ★ボタンを押した瞬間（0ミリ秒）に、指定した音源リストを「音量ゼロ＋ミュート」で再生してブラウザのロックを解除する関数
-  function silentUnlockAudioKeys(keysToUnlock, keepLoopingKeys = []) {
-    keysToUnlock.forEach(k => {
-      const list = [audios[k], ...(audioPools[k] || [])];
-      list.forEach(a => {
-        if (!a) return;
-        try {
-          a.muted = true;
-          a.volume = 0;
-          const p = a.play();
-          if (!keepLoopingKeys.includes(k)) {
-            if (p && typeof p.then === 'function') {
-              p.then(() => {
-                a.pause();
-                a.currentTime = 0;
-              }).catch(() => {});
-            } else {
-              setTimeout(() => {
-                try { a.pause(); a.currentTime = 0; } catch (e) {}
-              }, 30);
-            }
-          }
-        } catch (e) {}
+  // タンス閉鎖時のこもり音パラメータ（音量0.28倍 ＋ ローパスフィルター400Hzでしっかりこもらせる）
+  const DOOR_MUFFLE_VOL_RATIO = 0.28;
+  const DOOR_MUFFLE_FREQ = 400;
+
+  function stopActiveWebSourceOnly(audioKey) {
+    if (activeSources[audioKey]) {
+      activeSources[audioKey].forEach(entry => {
+        try { entry.src.stop(0); } catch (e) {}
       });
-    });
+      activeSources[audioKey] = [];
+    }
   }
 
-  const DOOR_MUFFLE_VOL_RATIO = 0.28;
+  function stopMp3(audioKey) {
+    if (audioKey === 'rain') {
+      clearInterval(rainFadeInterval);
+      rainFadeInterval = null;
+    }
+    stopActiveWebSourceOnly(audioKey);
+    const a = fallbackAudios[audioKey];
+    if (a) {
+      try { a.pause(); a.currentTime = 0; } catch (e) {}
+    }
+  }
 
-  function playConfiguredSound(cfgKey, customMultiplier = 1.0, ignoreMuteAndConfig = false, playbackRate = 1.0) {
+  // Web Audio API (GainNode + BiquadFilterNode) による再生
+  function playConfiguredSound(cfgKey, customMultiplier = 1.0, ignoreMuteAndConfig = false, playbackRate = 1.0, startSilent = false) {
     if (isMuted && !ignoreMuteAndConfig) return;
     const cfg = VOL_CONFIG[cfgKey];
     if (!cfg) return;
     const audioKey = cfg.audioKey;
+    const isLoop = (audioKey === 'breath' || audioKey === 'titleBgm' || audioKey === 'rain');
 
-    if (cfgKey === 'notify' && !audios.notify) {
+    // 母からの通知音・タップ音（MP3が無い場合は内蔵シンセ音を正確に指定音量で鳴らす）
+    if (cfgKey === 'notify' && !decodedBuffers.notify) {
       playSoftMessageChime(cfg.val / 100);
       return;
     }
-
-    const a = audios[audioKey];
-    if (!a) {
-      if (cfgKey === 'tap') playSynthTap(cfg.val / 100);
+    if (cfgKey === 'tap' && !decodedBuffers.tap) {
+      playSynthTap(cfg.val / 100);
       return;
     }
 
-    let baseVol = ignoreMuteAndConfig ? 1.0 : ((cfg.val / 100) * customMultiplier);
-    if (!ignoreMuteAndConfig && isDoor && cfg.muffleWhenDoor) {
-      baseVol *= DOOR_MUFFLE_VOL_RATIO;
+    const boostFactor = ignoreMuteAndConfig ? 3.0 : (cfg.boost || 1.0);
+    let targetGain = ignoreMuteAndConfig ? (1.0 * boostFactor) : ((cfg.val / 100) * customMultiplier * boostFactor);
+    const shouldMuffle = (!ignoreMuteAndConfig && isDoor && cfg.muffleWhenDoor);
+    if (shouldMuffle) targetGain *= DOOR_MUFFLE_VOL_RATIO;
+
+    const initialGain = startSilent ? 0.0001 : Math.max(0, targetGain);
+
+    if (decodedBuffers[audioKey]) {
+      const ctx = ensureAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (isLoop) stopActiveWebSourceOnly(audioKey);
+
+      const src = ctx.createBufferSource();
+      src.buffer = decodedBuffers[audioKey];
+      src.loop = isLoop;
+      src.playbackRate.value = playbackRate;
+
+      // こもり音用ローパスフィルター
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = shouldMuffle ? DOOR_MUFFLE_FREQ : 20000;
+
+      // iPhoneでも1%単位で正確に効く音量ノード
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = initialGain;
+
+      src.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      src.start(0);
+
+      if (!activeSources[audioKey]) activeSources[audioKey] = [];
+      const entry = { src, gainNode, filter, cfgKey };
+      activeSources[audioKey].push(entry);
+      src.onended = () => {
+        if (activeSources[audioKey]) {
+          activeSources[audioKey] = activeSources[audioKey].filter(x => x !== entry);
+        }
+      };
+      return;
     }
-    const finalVol = Math.max(0, Math.min(1, baseVol));
 
-    try {
-      a.muted = false;
-      a.playbackRate = playbackRate;
-      a.volume = finalVol;
-      if (!a.loop) a.currentTime = 0;
-      const p = a.play();
-      if (p && typeof p.catch === 'function') {
-        p.catch(() => {
-          if (cfgKey === 'tap') playSynthTap(cfg.val / 100);
-        });
-      }
-    } catch (e) {}
+    // ローカル(file://)フォールバック
+    const a = fallbackAudios[audioKey];
+    if (a) {
+      try {
+        a.muted = startSilent;
+        a.volume = startSilent ? 0 : Math.max(0, Math.min(1, targetGain));
+        if (!isLoop) a.currentTime = 0;
+        a.play().catch(() => {});
+      } catch (e) {}
+    }
+  }
 
-    // 足音3倍ブースト（予備インスタンスも同時に再生）
-    const boostCount = ignoreMuteAndConfig ? 3 : (cfg.boost || 1);
-    if (boostCount > 1 && !a.loop && finalVol > 0) {
-      const pool = audioPools[audioKey] || [];
-      pool.forEach(extra => {
-        try {
-          extra.muted = false;
-          extra.playbackRate = playbackRate;
-          extra.volume = finalVol;
-          extra.currentTime = 0;
-          extra.play().catch(() => {});
-        } catch (e) {}
+  // ループ音の音量を滑らかに変更する関数
+  function setLoopGain(audioKey, targetVol) {
+    const clamped = Math.max(0, targetVol);
+    if (activeSources[audioKey] && activeSources[audioKey].length > 0 && audioCtx) {
+      activeSources[audioKey].forEach(entry => {
+        entry.gainNode.gain.setTargetAtTime(isMuted ? 0 : clamped, audioCtx.currentTime, 0.03);
       });
+    } else if (!isMuted && clamped > 0.0001 && decodedBuffers[audioKey]) {
+      playConfiguredSound(audioKey, 1.0, false, 1.0, false);
     }
-  }
-
-  // ループ音（titleBgm / rain / breath）をボタン押下時の0秒で音量ゼロのまま回し始める関数
-  function startLoopSilentOnButtonTap(audioKey) {
-    const a = audios[audioKey];
-    if (!a) return;
-    try {
-      a.loop = true;
-      a.muted = true;
-      a.volume = 0;
-      a.play().catch(() => {});
-    } catch (e) {}
-  }
-
-  // すでに音量ゼロで回っているループ音のミュートを解除して指定音量で聴かせる関数
-  function unmuteAndSetLoopVolume(audioKey, targetVol) {
-    const a = audios[audioKey];
-    if (!a) return;
-    const clamped = Math.max(0, Math.min(1, targetVol));
-    try {
-      if (isMuted || clamped <= 0.0001) {
-        a.muted = true;
-        a.volume = 0;
-      } else {
-        a.muted = false;
-        a.volume = clamped;
-        if (a.paused) a.play().catch(() => {});
-      }
-    } catch (e) {}
+    if (fallbackAudios[audioKey]) {
+      try {
+        fallbackAudios[audioKey].muted = isMuted || clamped <= 0.0001;
+        fallbackAudios[audioKey].volume = Math.min(1, clamped);
+      } catch (e) {}
+    }
   }
 
   function getTargetRainVolume() {
-    let v = VOL_CONFIG.rain.val / 100;
-    if (isDoor) v *= DOOR_MUFFLE_VOL_RATIO;
+    let v = VOL_CONFIG.rain.val / 100; // 基本音量 0.14 (14)
+    if (isDoor) v *= DOOR_MUFFLE_VOL_RATIO; // タンス閉鎖時はさらに 0.28倍
     return Math.max(0, Math.min(1, v));
   }
 
@@ -1519,7 +683,10 @@
       if (onComplete) onComplete();
       return;
     }
-    unmuteAndSetLoopVolume('rain', fromVol);
+    if (!activeSources.rain || activeSources.rain.length === 0) {
+      playConfiguredSound('rain', 1.0, false, 1.0, true);
+    }
+    setLoopGain('rain', fromVol);
 
     const steps = 25;
     const stepMs = durationMs / steps;
@@ -1528,8 +695,7 @@
     rainFadeInterval = setInterval(() => {
       stepCount++;
       const progress = Math.min(1, stepCount / steps);
-      const cur = fromVol + (toVol - fromVol) * progress;
-      unmuteAndSetLoopVolume('rain', cur);
+      setLoopGain('rain', fromVol + (toVol - fromVol) * progress);
       if (stepCount >= steps) {
         clearInterval(rainFadeInterval);
         rainFadeInterval = null;
@@ -1538,126 +704,94 @@
     }, stepMs);
   }
 
+  // ★タンスの扉を開閉した瞬間に、現在鳴っている雨・雷・足音・笑い声すべてに「こもり音フィルター(400Hz)＋音量減衰」を即時適用
   function updateAllDoorMuffleStates() {
-    if (!isMuted && ['story', 'rule', 'play'].includes(currentScreenName) && !rainFadeInterval && !isEnded && !isBatteryDying) {
-      unmuteAndSetLoopVolume('rain', getTargetRainVolume());
-    }
-  }
+    if (!audioCtx) return;
+    Object.keys(VOL_CONFIG).forEach(cfgKey => {
+      const cfg = VOL_CONFIG[cfgKey];
+      if (!cfg.muffleWhenDoor || !cfg.audioKey) return;
+      if (cfgKey === 'rain' && rainFadeInterval) return;
 
-  function stopMp3(audioKey) {
-    if (audioKey === 'rain') {
-      clearInterval(rainFadeInterval);
-      rainFadeInterval = null;
-    }
-    const a = audios[audioKey];
-    if (a) {
-      try {
-        a.pause();
-        a.currentTime = 0;
-        a.playbackRate = 1.0;
-      } catch (e) {}
-    }
-    if (audioKey === 'footstep' && audioPools.footstep) {
-      audioPools.footstep.forEach(p => {
-        try {
-          p.pause();
-          p.currentTime = 0;
-          p.playbackRate = 1.0;
-        } catch (e) {}
-      });
-    }
-  }
-
-  let audioCtx = null;
-  function initAudio(forceUnmuted = false) {
-    if (isMuted && !forceUnmuted) return;
-    if (!audioCtx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) audioCtx = new AC();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      try { audioCtx.resume(); } catch (e) {}
-    }
+      const list = activeSources[cfg.audioKey];
+      if (list && list.length > 0) {
+        let g = (cfg.val / 100) * (cfg.boost || 1.0);
+        if (isDoor) g *= DOOR_MUFFLE_VOL_RATIO;
+        list.forEach(entry => {
+          entry.gainNode.gain.setTargetAtTime(isMuted ? 0 : Math.max(0, g), audioCtx.currentTime, 0.03);
+          entry.filter.frequency.setTargetAtTime(isDoor ? DOOR_MUFFLE_FREQ : 20000, audioCtx.currentTime, 0.04);
+        });
+      }
+    });
   }
 
   function playSynthTap(volScale = 0.32) {
     if (isMuted || volScale <= 0) return;
-    initAudio();
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(680, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.035);
-    gain.gain.setValueAtTime(0.18 * volScale, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(680, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.035);
+    gain.gain.setValueAtTime(0.18 * volScale, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.04);
   }
 
   function playSoftMessageChime(volScale = 0.6) {
     if (isMuted || volScale <= 0) return;
-    initAudio();
-    if (!audioCtx) return;
-    const now = audioCtx.currentTime;
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const now = ctx.currentTime;
     [
       { freq: 523.25, delay: 0.00, dur: 0.11 },
       { freq: 659.25, delay: 0.06, dur: 0.11 },
       { freq: 783.99, delay: 0.12, dur: 0.22 }
     ].forEach(n => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(n.freq, now + n.delay);
       gain.gain.setValueAtTime(0.001, now + n.delay);
       gain.gain.linearRampToValueAtTime(0.24 * volScale, now + n.delay + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.001, now + n.delay + n.dur);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now + n.delay);
-      osc.stop(now + n.delay + n.dur + 0.01);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + n.delay); osc.stop(now + n.delay + n.dur + 0.01);
     });
   }
 
   function startTitleBgm() {
     if (isMuted) return;
-    unmuteAndSetLoopVolume('titleBgm', VOL_CONFIG.titleBgm.val / 100);
+    setLoopGain('titleBgm', VOL_CONFIG.titleBgm.val / 100);
   }
 
   function startRainSound() {
     if (isMuted) return;
-    unmuteAndSetLoopVolume('rain', getTargetRainVolume());
+    setLoopGain('rain', getTargetRainVolume());
+    updateAllDoorMuffleStates();
   }
 
   function stopRainSound() { stopMp3('rain'); }
 
-  // 扉閉鎖中の息遣いも無音ループからミュート解除で即座に発音
   function startBreathingSound() {
     if (isMuted) return;
-    unmuteAndSetLoopVolume('breath', VOL_CONFIG.breath.val / 100);
+    playConfiguredSound('breath', 1.0, false, 1.0, false);
   }
 
-  function stopBreathingSound() {
-    const a = audios.breath;
-    if (a && !a.paused) {
-      a.muted = true;
-      a.volume = 0;
-      a.currentTime = 0;
-    }
-  }
+  function stopBreathingSound() { stopMp3('breath'); }
 
   const btnSound = document.getElementById('btn-sound');
   btnSound.onclick = () => {
-    initAudio();
+    const ctx = ensureAudioCtx();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
     isMuted = !isMuted;
     if (isMuted) {
       btnSound.innerText = "🔇 SOUND OFF";
       btnSound.classList.add('muted');
-      if (audios.titleBgm) { audios.titleBgm.muted = true; audios.titleBgm.volume = 0; }
-      if (audios.rain) { audios.rain.muted = true; audios.rain.volume = 0; }
-      if (audios.breath) { audios.breath.muted = true; audios.breath.volume = 0; }
+      stopBreathingSound();
+      stopMp3('titleBgm');
+      stopRainSound();
     } else {
       btnSound.innerText = "🔊 SOUND ON";
       btnSound.classList.remove('muted');
@@ -1717,62 +851,73 @@
 
   function playJumpscareSound() {
     if (isMuted) return;
-    initAudio();
-    if (!audioCtx) return;
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
     const masterScale = VOL_CONFIG.jumpscare.val / 100;
     if (masterScale <= 0) return;
 
     const dur = 1.8;
     [110, 156, 233, 311, 480].forEach(f => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(f * 0.65, audioCtx.currentTime + dur);
-      gain.gain.setValueAtTime(0.26 * masterScale, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + dur);
+      osc.frequency.setValueAtTime(f, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(f * 0.65, ctx.currentTime + dur);
+      gain.gain.setValueAtTime(0.26 * masterScale, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + dur);
     });
 
-    const bufferSize = audioCtx.sampleRate * dur;
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const bufferSize = ctx.sampleRate * dur;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1);
-    const noise = audioCtx.createBufferSource();
+    const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    const nGain = audioCtx.createGain();
-    nGain.gain.setValueAtTime(0.55 * masterScale, audioCtx.currentTime);
-    nGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-    noise.connect(nGain);
-    nGain.connect(audioCtx.destination);
+    const nGain = ctx.createGain();
+    nGain.gain.setValueAtTime(0.55 * masterScale, ctx.currentTime);
+    nGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
+    noise.connect(nGain); nGain.connect(ctx.destination);
     noise.start();
   }
 
   // ==========================================
-  // ★1. ローディング画面の「次へ」→ 2. 音あり推奨画面の「次へ」の2段階アンロック
+  // ★第1画面（ローディング次へ）＆ 第2画面（音あり推奨次へ）の2段階アンロック
   // ==========================================
   let loadingNextClicked = false;
-  document.getElementById('btn-loading-next').onclick = () => {
+  document.getElementById('btn-loading-next').onclick = async () => {
     if (loadingNextClicked) return;
     loadingNextClicked = true;
 
-    initAudio();
-    // 第1段階アンロック：全音声を音量ゼロ・ミュート状態で再生してブラウザの制限を解除
-    silentUnlockAudioKeys(soundKeysList);
+    const ctx = ensureAudioCtx();
+    if (ctx) {
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      try {
+        const silent = ctx.createBuffer(1, 1, 22050);
+        const s = ctx.createBufferSource();
+        s.buffer = silent;
+        s.connect(ctx.destination);
+        s.start(0);
+      } catch (e) {}
+
+      // 未デコードのメモリバッファがあればすべてデコード完了させる
+      for (const k of Object.keys(rawBuffers)) {
+        if (!decodedBuffers[k] && rawBuffers[k]) {
+          const b = await decodeBufferAsync(ctx, rawBuffers[k]);
+          if (b) decodedBuffers[k] = b;
+        }
+      }
+    }
 
     const loadingScr = document.getElementById('loading-screen');
     const noticeScr = document.getElementById('sound-notice-screen');
-    const noticeContent = document.getElementById('sound-notice-content');
-
     noticeScr.style.display = 'flex';
     loadingScr.classList.add('fade-out');
 
     setTimeout(() => {
       loadingScr.style.display = 'none';
-      noticeContent.classList.add('visible');
+      document.getElementById('sound-notice-content').classList.add('visible');
     }, 850);
   };
 
@@ -1781,10 +926,11 @@
     if (soundNoticeDismissed) return;
     soundNoticeDismissed = true;
 
-    initAudio();
-    // ★第2段階アンロック：ボタンを押したこの瞬間（0ミリ秒）にタイトル音楽を音量ゼロで再生開始し、他の効果音も再アンロック
-    startLoopSilentOnButtonTap('titleBgm');
-    silentUnlockAudioKeys(['rain', 'thunder', 'plushDrop', 'footstep', 'breath', 'laugh', 'doorClose', 'doorOpen', 'tap', 'notify', 'clear']);
+    const ctx = ensureAudioCtx();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+    // ボタンを押した瞬間（0ミリ秒）にタイトル音楽を音量ゼロでスタートさせておき、フェード明けに音量15へ引き上げる
+    playConfiguredSound('titleBgm', 1.0, false, 1.0, true);
 
     const noticeScreen = document.getElementById('sound-notice-screen');
     document.getElementById('sound-notice-content').classList.remove('visible');
@@ -1796,26 +942,18 @@
       document.querySelectorAll('#start-screen .stagger-item').forEach((el, idx) => {
         setTimeout(() => el.classList.add('appear'), 350 + idx * 280);
       });
-      // すでに回っているタイトル音楽のミュートを解除して音量15で流す
       startTitleBgm();
       startTitleApproachLoop();
-    }, 1650);
+    }, 1550);
   };
 
   // ==========================================
   // スタート画面90秒接近ループ
   // ==========================================
-  const START_APPROACH_DURATION = 90000;
-  const MIN_TITLE_SCALE = 0.15;
-  const MAX_TITLE_SCALE = 2.45;
-  let startApproachStartTime = null;
-  let startApproachRafId = null;
-  let currentTitleScale = MIN_TITLE_SCALE;
-  let isStartScareActive = false;
-  let isStarting = false;
-
-  const titleImgEl = document.getElementById('title-img');
-  const titlePhEl = document.getElementById('title-art-placeholder');
+  const START_APPROACH_DURATION = 90000, MIN_TITLE_SCALE = 0.15, MAX_TITLE_SCALE = 2.45;
+  let startApproachStartTime = null, startApproachRafId = null, currentTitleScale = MIN_TITLE_SCALE;
+  let isStartScareActive = false, isStarting = false;
+  const titleImgEl = document.getElementById('title-img'), titlePhEl = document.getElementById('title-art-placeholder');
 
   function applyTitleScale(s) {
     currentTitleScale = s;
@@ -1827,15 +965,11 @@
     cancelAnimationFrame(startApproachRafId);
     startApproachStartTime = performance.now();
     applyTitleScale(MIN_TITLE_SCALE);
-
     function step(now) {
       if (isStarting || isStartScareActive || currentScreenName !== 'start') return;
       const progress = Math.min(1, (now - startApproachStartTime) / START_APPROACH_DURATION);
       applyTitleScale(MIN_TITLE_SCALE + (MAX_TITLE_SCALE - MIN_TITLE_SCALE) * progress);
-      if (progress >= 1) {
-        triggerStartScreenJumpscare();
-        return;
-      }
+      if (progress >= 1) { triggerStartScreenJumpscare(); return; }
       startApproachRafId = requestAnimationFrame(step);
     }
     startApproachRafId = requestAnimationFrame(step);
@@ -1891,60 +1025,20 @@
   }
 
   // ==========================================
-  // 3. 全10通のLINEメッセージ
+  // 3. 全10通のLINEメッセージ ＆ ゲーム進行管理
   // ==========================================
   const INITIAL_MOM_MSG = "もうすぐ帰るけど、ご飯食べた？";
   const messages = [
-    {
-      text: "ママいまどこ？はやく帰ってきて",
-      reply: "もうすぐ着くけど、どうしたの？",
-      getAfterDeath: l => l === 0 ? ["おーい、ご飯食べたの？", "もうすぐ家に着くよ！"] : ["ちょっと、どうしたの？", "ねえ、なんで文字が途中で止まるの？大丈夫？"]
-    },
-    {
-      text: "たすけて、いまおそわれてる",
-      reply: "えっ！？どしたの！？どろぼう！？誰に！？",
-      getAfterDeath: l => l === 0 ? ["ねえ、どうしたの？なにかあったの？", "なんで返事しないの？心配させないでよ！"] : (l < 4 ? ["え、文字が途中で切れてるけどどうしたの！？", "ねえ、なにかあったの！？返事して！"] : (l < 8 ? ["たすけてってどういうこと！？", "ねえ、なにが起きてるの！？返事して！！"] : ["えっ！？襲われてるってどろぼう！？誰に！？", "おーい！！返事して！！"]))
-    },
-    {
-      text: "人形、人形におそわれてる",
-      reply: "人形ってどういうこと！？冗談はやめて！",
-      getAfterDeath: l => l < 2 ? ["どろぼうなの！？誰が家にいるの！？", "ねえ、なんで途中で止まるの！？返事して！！"] : ["人形ってなに！？どういうこと！？", "おーい！文字が途中で切れてるよ！返事して！"]
-    },
-    {
-      text: "うそじゃない、急に動き出したの",
-      reply: "ちょっと待って、ほんとに言ってるの…！？",
-      getAfterDeath: l => l < 6 ? ["ちょっと、ほんとに誰かいるの！？", "冗談なんでしょ！？ねえ、返事してよ！！"] : ["急に動き出したってどういうこと…！？", "ねえ大丈夫なの！？返事して！！"]
-    },
-    {
-      text: "部屋の中にいて出られない",
-      reply: "とにかく早く警察に電話しなさい！！",
-      getAfterDeath: l => l < 2 ? ["ねえ、いま無事なの！？", "おーい！スタンプでもいいから押して！！"] : ["部屋の中にいるってどういうこと！？", "出られないの！？ねえ、返事して！！"]
-    },
-    {
-      text: "声だしたらバレる、電話できない",
-      reply: "声が出せないのね！？今どこにいるの！？",
-      getAfterDeath: l => l < 2 ? ["警察には電話できたの！？", "ねえ、なんで返事がないの！？大丈夫なの！？"] : ["声を出せない状況なの！？", "ねえ、今どこにいるの！？返事して！！"]
-    },
-    {
-      text: "二階のわたしの部屋のタンスの中",
-      reply: "わかった！帰るまで絶対に出ないで！",
-      getAfterDeath: l => l < 2 ? ["今家のどこに隠れてるの！？", "場所だけでも教えて！！おーい！！"] : (l < 10 ? ["二階の部屋にいるのね！？", "部屋のどこに隠れてるの！？返事して！！"] : ["タンスの中にいるのね！？", "なんで途中で止まるの！？大丈夫なの！？"])
-    },
-    {
-      text: "扉がこわれてて手でおさえてる",
-      reply: "あと少しで着くから！そのまま押さえてて！",
-      getAfterDeath: l => l < 2 ? ["タンスの中で無事なのね！？", "ママが着くまで絶対に出ちゃだめよ！返事して！"] : ["タンスの扉がどうかしたの！？", "あと少しで家に着くから！おーい！！"]
-    },
-    {
-      text: "前まできてる、はやくきて",
-      reply: "いま玄関あけたよ！すぐ二階に行く！",
-      getAfterDeath: l => l < 2 ? ["まだ扉をおさえてられてる！？", "もう家の前まで来てるから！返事して！！"] : ["前まで来てるって、タンスの前にいるの！？", "いま玄関あけたよ！すぐそっちに行くから！！"]
-    },
-    {
-      text: "はやく助けにきて。ほんとに目の前",
-      reply: "今部屋のドア開けたよ！！もう大丈夫だから出てきて！！",
-      getAfterDeath: () => ["いま階段あがって部屋のドア開けたよ！！", "ねえ…タンスが空いてる…どこにいるの！？"]
-    }
+    { text: "ママいまどこ？はやく帰ってきて", reply: "もうすぐ着くけど、どうしたの？", getAfterDeath: l => l === 0 ? ["おーい、ご飯食べたの？", "もうすぐ家に着くよ！"] : ["ちょっと、どうしたの？", "ねえ、なんで文字が途中で止まるの？大丈夫？"] },
+    { text: "たすけて、いまおそわれてる", reply: "えっ！？どしたの！？どろぼう！？誰に！？", getAfterDeath: l => l === 0 ? ["ねえ、どうしたの？なにかあったの？", "なんで返事しないの？心配させないでよ！"] : (l < 4 ? ["え、文字が途中で切れてるけどどうしたの！？", "ねえ、なにかあったの！？返事して！"] : (l < 8 ? ["たすけてってどういうこと！？", "ねえ、なにが起きてるの！？返事して！！"] : ["えっ！？襲われてるってどろぼう！？誰に！？", "おーい！！返事して！！"])) },
+    { text: "人形、人形におそわれてる", reply: "人形ってどういうこと！？冗談はやめて！", getAfterDeath: l => l < 2 ? ["どろぼうなの！？誰が家にいるの！？", "ねえ、なんで途中で止まるの！？返事して！！"] : ["人形ってなに！？どういうこと！？", "おーい！文字が途中で切れてるよ！返事して！"] },
+    { text: "うそじゃない、急に動き出したの", reply: "ちょっと待って、ほんとに言ってるの…！？", getAfterDeath: l => l < 6 ? ["ちょっと、ほんとに誰かいるの！？", "冗談なんでしょ！？ねえ、返事してよ！！"] : ["急に動き出したってどういうこと…！？", "ねえ大丈夫なの！？返事して！！"] },
+    { text: "部屋の中にいて出られない", reply: "とにかく早く警察に電話しなさい！！", getAfterDeath: l => l < 2 ? ["ねえ、いま無事なの！？", "おーい！スタンプでもいいから押して！！"] : ["部屋の中にいるってどういうこと！？", "出られないの！？ねえ、返事して！！"] },
+    { text: "声だしたらバレる、電話できない", reply: "声が出せないのね！？今どこにいるの！？", getAfterDeath: l => l < 2 ? ["警察には電話できたの！？", "ねえ、なんで返事がないの！？大丈夫なの！？"] : ["声を出せない状況なの！？", "ねえ、今どこにいるの！？返事して！！"] },
+    { text: "二階のわたしの部屋のタンスの中", reply: "わかった！帰るまで絶対に出ないで！", getAfterDeath: l => l < 2 ? ["今家のどこに隠れてるの！？", "場所だけでも教えて！！おーい！！"] : (l < 10 ? ["二階の部屋にいるのね！？", "部屋のどこに隠れてるの！？返事して！！"] : ["タンスの中にいるのね！？", "なんで途中で止まるの！？大丈夫なの！？"]) },
+    { text: "扉がこわれてて手でおさえてる", reply: "あと少しで着くから！そのまま押さえてて！", getAfterDeath: l => l < 2 ? ["タンスの中で無事なのね！？", "ママが着くまで絶対に出ちゃだめよ！返事して！"] : ["タンスの扉がどうかしたの！？", "あと少しで家に着くから！おーい！！"] },
+    { text: "前まできてる、はやくきて", reply: "いま玄関あけたよ！すぐ二階に行く！", getAfterDeath: l => l < 2 ? ["まだ扉をおさえてられてる！？", "もう家の前まで来てるから！返事して！！"] : ["前まで来てるって、タンスの前にいるの！？", "いま玄関あけたよ！すぐそっちに行くから！！"] },
+    { text: "はやく助けにきて。ほんとに目の前", reply: "今部屋のドア開けたよ！！もう大丈夫だから出てきて！！", getAfterDeath: () => ["いま階段あがって部屋のドア開けたよ！！", "ねえ…タンスが空いてる…どこにいるの！？"] }
   ];
 
   const pool = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだでどばびぶべぼー！？、。ママ人形急動部屋中声電話二階扉手前目";
@@ -2109,8 +1203,6 @@
         hudProg.innerText = `SOS: ${msgIdx}/10`;
 
         if (msgIdx >= messages.length) {
-          // ★10通目送信完了のタップ瞬間（0秒）にクリア音を無音アンロック
-          silentUnlockAudioKeys(['clear']);
           isPlaying = false;
           clearTimeout(advTimer); clearTimeout(retTimer); clearTimeout(thTimer);
           clearTimeout(killTimer); clearTimeout(laughTimer); clearInterval(batInterval);
@@ -2148,7 +1240,6 @@
     }
   }
 
-  // ライトボタン（扉閉鎖中は操作不可・ON/OFF時にスマホタップ音）
   btnLight.onclick = () => {
     if (!isPlaying || isEnded || isBatteryDying || isDoor) return;
     isLight = !isLight;
@@ -2227,7 +1318,7 @@
     }, calmDuration));
   }
 
-  // タンスの扉：長押ししている間だけ閉まる（離すと開く）
+  // タンスの扉：長押しで閉まる（閉鎖中は雨音や周囲の音がこもり、ライトボタンは無効化）
   function closeDoor(e) {
     if (e) e.preventDefault();
     if (!isPlaying || isEnded || isBatteryDying || isDoor) return;
@@ -2248,8 +1339,7 @@
     setFlickerBlackoutState(false);
 
     doorEl.classList.add('closed');
-    phoneWrap.classList.add('slide-down');
-    phoneWrap.classList.add('locked');
+    phoneWrap.classList.add('slide-down', 'locked');
     btnDoor.classList.add('on-door');
     doorBtnLabel.innerText = "閉鎖中";
 
@@ -2280,8 +1370,7 @@
     clearTimeout(retTimer);
 
     doorEl.classList.remove('closed');
-    phoneWrap.classList.remove('slide-down');
-    phoneWrap.classList.remove('locked');
+    phoneWrap.classList.remove('slide-down', 'locked');
     btnDoor.classList.remove('on-door');
     btnLight.classList.remove('disabled-btn');
     doorBtnLabel.innerText = "閉める";
@@ -2527,18 +1616,18 @@
     }
   }
 
-  // ★スタート演出：STARTボタンを押した瞬間（0ミリ秒）にタイトル音楽をスパッと切り、雨音を音量ゼロで即時再生開始
+  // スタート演出（STARTボタンを押した瞬間にタイトルBGMを止め、雨音を音量0でスタートして物語画面で音量14にする）
   document.getElementById('btn-start').onclick = () => {
     if (isStarting || isStartScareActive) return;
     isStarting = true;
 
-    initAudio();
+    const ctx = ensureAudioCtx();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+
     cancelAnimationFrame(startApproachRafId);
     applyTitleScale(currentTitleScale);
     stopMp3('titleBgm');
-
-    // タップしたこの瞬間（0ミリ秒）に雨音を音量ゼロで再生開始しておく
-    startLoopSilentOnButtonTap('rain');
+    playConfiguredSound('rain', 1.0, false, 1.0, true);
 
     const startScr = document.getElementById('start-screen');
     startScr.classList.add('monochrome-bg');
@@ -2561,7 +1650,6 @@
 
         storyScreen.style.display = 'flex';
         currentScreenName = 'story';
-        // すでに回っている雨音のミュートを解除して音量14で流す
         startRainSound();
         fullBlackout.classList.remove('active');
 
@@ -2623,14 +1711,12 @@
     }, 1650);
   };
 
-  // ★プレイ開始の「▶」ボタンを押した瞬間（0ミリ秒）に笑い声を鳴らし、息遣いを音量ゼロでループ開始＆雷等を再アンロック
   document.getElementById('btn-ready-arrow').onclick = () => {
     if (isPlaying || isEnded || isBatteryDying) return;
     isPlaying = true;
 
-    initAudio();
-    startLoopSilentOnButtonTap('breath');
-    silentUnlockAudioKeys(['thunder', 'plushDrop', 'footstep', 'clear']);
+    const ctx = ensureAudioCtx();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
 
     document.getElementById('ready-modal-backdrop').style.display = 'none';
     playConfiguredSound('laugh');
