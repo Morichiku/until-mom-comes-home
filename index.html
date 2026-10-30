@@ -1142,11 +1142,18 @@
   KEYS.forEach(k => resolveImageKey(k));
 
   // ==========================================
-  // 2. 同期アンロック＆WebAudioハイブリッドエンジン（Safari / Chrome完全対応）
+  // 2. サウンドエンジン（誤爆アンロックを廃止・通信ロード完了時の自動追従再生つき）
   // ==========================================
   let isMuted = false;
   let currentScreenName = "start";
   let rainFadeInterval = null;
+
+  // 現在鳴っているべきループ音の状態フラグ（ロード遅延時にも自動で鳴り始めるために使用）
+  const desiredLoops = {
+    titleBgm: false,
+    rain: false,
+    breath: false
+  };
 
   const VOL_CONFIG = {
     titleBgm:  { val: 15,  audioKey: "titleBgm", boost: 1, muffleWhenDoor: false },
@@ -1195,28 +1202,69 @@
     return audioCtx;
   }
 
+  // Promiseと旧コールバックの両方に対応する安全なデコード関数
+  function safeDecode(ctx, arrayBuf, onSuccess) {
+    try {
+      const copy = arrayBuf.slice(0);
+      const res = ctx.decodeAudioData(
+        copy,
+        buf => { if (buf) onSuccess(buf); },
+        () => {}
+      );
+      if (res && typeof res.then === 'function') {
+        res.then(buf => { if (buf) onSuccess(buf); }).catch(() => {});
+      }
+    } catch (e) {}
+  }
+
+  // デコードまたはロードが完了した瞬間に、現在必要なループ音があれば自動開始する
+  function onSoundReady(key) {
+    if (isMuted) return;
+    if (key === 'titleBgm' && desiredLoops.titleBgm && currentScreenName === 'start' && !isStarting && !isStartScareActive) {
+      if (!isLoopCurrentlyPlaying('titleBgm')) playConfiguredSound('titleBgm');
+    }
+    if (key === 'rain' && desiredLoops.rain && ['story', 'rule', 'play'].includes(currentScreenName) && !isEnded && !isBatteryDying) {
+      if (!isLoopCurrentlyPlaying('rain')) playConfiguredSound('rain');
+    }
+    if (key === 'breath' && desiredLoops.breath && isDoor && !isEnded && !isBatteryDying) {
+      if (!isLoopCurrentlyPlaying('breath')) playConfiguredSound('breath');
+    }
+  }
+
+  function isLoopCurrentlyPlaying(audioKey) {
+    const webActive = (activeSources[audioKey] && activeSources[audioKey].length > 0);
+    const htmlActive = (htmlAudios[audioKey] && !htmlAudios[audioKey].paused);
+    return webActive || htmlActive;
+  }
+
   function setupSoundKey(key) {
     const isLoop = (key === 'breath' || key === 'titleBgm' || key === 'rain');
     const paths = SOUND_FILES[key];
-    let idx = 0;
 
-    function registerHtmlAudio() {
+    // 1. HTMLAudioフォールバックのロード（実際に存在するパスを順に探す）
+    let idx = 0;
+    function tryLoadHtmlAudio() {
       if (idx >= paths.length) return;
       const url = paths[idx++];
       const a = new Audio();
       a.preload = "auto";
       a.loop = isLoop;
+      a.addEventListener('canplay', () => {
+        if (!htmlAudios[key]) {
+          htmlAudios[key] = a;
+          if (key === 'footstep' && footstepPool.length === 0) {
+            footstepPool.push(new Audio(url), new Audio(url));
+          }
+          onSoundReady(key);
+        }
+      }, { once: true });
+      a.addEventListener('error', tryLoadHtmlAudio, { once: true });
       a.src = url;
-      a.addEventListener('error', registerHtmlAudio, { once: true });
-      htmlAudios[key] = a;
-      if (key === 'footstep' && footstepPool.length === 0) {
-        const p1 = new Audio(url); p1.preload = "auto";
-        const p2 = new Audio(url); p2.preload = "auto";
-        footstepPool.push(p1, p2);
-      }
+      a.load();
     }
-    registerHtmlAudio();
+    tryLoadHtmlAudio();
 
+    // 2. WebAudio用バイナリの取得（Safari/Chromeでタイマー制限を受けず音量・こもり音も制御可能）
     (async () => {
       for (const url of paths) {
         try {
@@ -1224,9 +1272,11 @@
           if (res.ok) {
             const ab = await res.arrayBuffer();
             rawBuffers[key] = ab;
-            const ctx = ensureAudioCtx();
-            if (ctx) {
-              ctx.decodeAudioData(ab.slice(0), buf => { decodedBuffers[key] = buf; }, () => {});
+            if (audioCtx) {
+              safeDecode(audioCtx, ab, buf => {
+                decodedBuffers[key] = buf;
+                onSoundReady(key);
+              });
             }
             return;
           }
@@ -1236,46 +1286,29 @@
   }
   Object.keys(SOUND_FILES).forEach(k => setupSoundKey(k));
 
-  function unlockAllAudioSync() {
+  // ★タップ時にAudioContextだけを無音でアンロック（MP3要素の誤爆再生は一切行わない）
+  function unlockAudioContextSync() {
     const ctx = ensureAudioCtx();
-    if (ctx) {
-      if (ctx.state === 'suspended') ctx.resume();
-      try {
-        const silentBuf = ctx.createBuffer(1, 1, 22050);
-        const src = ctx.createBufferSource();
-        src.buffer = silentBuf;
-        src.connect(ctx.destination);
-        src.start(0);
-      } catch (e) {}
-
-      Object.keys(rawBuffers).forEach(k => {
-        if (!decodedBuffers[k] && rawBuffers[k]) {
-          try {
-            ctx.decodeAudioData(rawBuffers[k].slice(0), buf => { decodedBuffers[k] = buf; }, () => {});
-          } catch (e) {}
-        }
-      });
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      try { ctx.resume(); } catch (e) {}
     }
+    try {
+      const silentBuf = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = silentBuf;
+      src.connect(ctx.destination);
+      src.start(0);
+    } catch (e) {}
 
-    const allElements = [...Object.values(htmlAudios), ...footstepPool];
-    allElements.forEach(a => {
-      if (!a) return;
-      try {
-        const prevMuted = a.muted;
-        a.muted = true;
-        const p = a.play();
-        if (p && p.then) {
-          p.then(() => {
-            a.pause();
-            a.currentTime = 0;
-            a.muted = prevMuted;
-          }).catch(() => { a.muted = prevMuted; });
-        } else {
-          a.pause();
-          a.currentTime = 0;
-          a.muted = prevMuted;
-        }
-      } catch (e) {}
+    // すでにfetch済みのバイナリがあればデコードを実行
+    Object.keys(rawBuffers).forEach(k => {
+      if (!decodedBuffers[k] && rawBuffers[k]) {
+        safeDecode(ctx, rawBuffers[k], buf => {
+          decodedBuffers[k] = buf;
+          onSoundReady(k);
+        });
+      }
     });
   }
 
@@ -1289,7 +1322,7 @@
     const audioKey = cfg.audioKey;
     const isLoop = (audioKey === 'breath' || audioKey === 'titleBgm' || audioKey === 'rain');
 
-    if (cfgKey === 'notify' && !decodedBuffers.notify) {
+    if (cfgKey === 'notify' && !decodedBuffers.notify && !htmlAudios.notify) {
       playSoftMessageChime(cfg.val / 100);
       return;
     }
@@ -1299,10 +1332,13 @@
     const shouldMuffle = (!ignoreMuteAndConfig && isDoor && cfg.muffleWhenDoor);
     if (shouldMuffle) targetGain *= DOOR_MUFFLE_VOL_RATIO;
 
+    // 1. WebAudio バッファがデコード済みなら最優先で再生
     if (decodedBuffers[audioKey]) {
       const ctx = ensureAudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-      if (isLoop) stopMp3(audioKey);
+      if (ctx.state === 'suspended') {
+        try { ctx.resume(); } catch (e) {}
+      }
+      if (isLoop) stopActiveWebSourceOnly(audioKey);
 
       const src = ctx.createBufferSource();
       src.buffer = decodedBuffers[audioKey];
@@ -1332,6 +1368,20 @@
       return;
     }
 
+    // まだデコードが終わっていないが rawBuffers がある場合は即デコードして鳴らす
+    if (rawBuffers[audioKey] && audioCtx) {
+      safeDecode(audioCtx, rawBuffers[audioKey], buf => {
+        decodedBuffers[audioKey] = buf;
+        if (isLoop) {
+          onSoundReady(audioKey);
+        } else if (!isEnded) {
+          playConfiguredSound(cfgKey, customMultiplier, ignoreMuteAndConfig, playbackRate);
+        }
+      });
+      return;
+    }
+
+    // 2. ローカル環境（file://）用のHTMLAudioフォールバック
     const a = htmlAudios[audioKey];
     if (!a) {
       if (cfgKey === 'tap') playSynthTap(cfg.val / 100);
@@ -1339,7 +1389,6 @@
     }
     const finalVol = Math.max(0, Math.min(1, targetGain));
     try {
-      a.muted = false;
       a.playbackRate = playbackRate;
       a.volume = finalVol;
       if (!isLoop) a.currentTime = 0;
@@ -1351,12 +1400,42 @@
     if (boostFactor > 1 && audioKey === 'footstep' && finalVol > 0) {
       footstepPool.forEach(p => {
         try {
-          p.muted = false;
           p.playbackRate = playbackRate;
           p.volume = finalVol;
           p.currentTime = 0;
           p.play().catch(() => {});
         } catch (e) {}
+      });
+    }
+  }
+
+  function stopActiveWebSourceOnly(audioKey) {
+    if (activeSources[audioKey]) {
+      activeSources[audioKey].forEach(entry => {
+        try { entry.src.stop(0); } catch (e) {}
+      });
+      activeSources[audioKey] = [];
+    }
+  }
+
+  function stopMp3(audioKey) {
+    if (audioKey === 'titleBgm') desiredLoops.titleBgm = false;
+    if (audioKey === 'rain') {
+      desiredLoops.rain = false;
+      clearInterval(rainFadeInterval);
+      rainFadeInterval = null;
+    }
+    if (audioKey === 'breath') desiredLoops.breath = false;
+
+    stopActiveWebSourceOnly(audioKey);
+
+    const a = htmlAudios[audioKey];
+    if (a) {
+      try { a.pause(); a.currentTime = 0; a.playbackRate = 1.0; } catch (e) {}
+    }
+    if (audioKey === 'footstep') {
+      footstepPool.forEach(p => {
+        try { p.pause(); p.currentTime = 0; p.playbackRate = 1.0; } catch (e) {}
       });
     }
   }
@@ -1428,33 +1507,13 @@
     });
   }
 
-  function stopMp3(audioKey) {
-    if (audioKey === 'rain') {
-      clearInterval(rainFadeInterval);
-      rainFadeInterval = null;
-    }
-    if (activeSources[audioKey]) {
-      activeSources[audioKey].forEach(entry => {
-        try { entry.src.stop(0); } catch (e) {}
-      });
-      activeSources[audioKey] = [];
-    }
-    const a = htmlAudios[audioKey];
-    if (a) {
-      try { a.pause(); a.currentTime = 0; a.playbackRate = 1.0; } catch (e) {}
-    }
-    if (audioKey === 'footstep') {
-      footstepPool.forEach(p => {
-        try { p.pause(); p.currentTime = 0; p.playbackRate = 1.0; } catch (e) {}
-      });
-    }
-  }
-
   function playSynthTap(volScale = 0.32) {
     if (isMuted || volScale <= 0) return;
     const ctx = ensureAudioCtx();
     if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') {
+      try { ctx.resume(); } catch (e) {}
+    }
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
@@ -1472,7 +1531,9 @@
     if (isMuted || volScale <= 0) return;
     const ctx = ensureAudioCtx();
     if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') {
+      try { ctx.resume(); } catch (e) {}
+    }
     const now = ctx.currentTime;
     [
       { freq: 523.25, delay: 0.00, dur: 0.11 },
@@ -1494,15 +1555,17 @@
   }
 
   function startTitleBgm() {
+    desiredLoops.titleBgm = true;
     if (isMuted) return;
-    playConfiguredSound('titleBgm');
+    if (!isLoopCurrentlyPlaying('titleBgm')) {
+      playConfiguredSound('titleBgm');
+    }
   }
 
   function startRainSound() {
+    desiredLoops.rain = true;
     if (isMuted) return;
-    const webRunning = (activeSources.rain && activeSources.rain.length > 0);
-    const htmlRunning = (htmlAudios.rain && !htmlAudios.rain.paused);
-    if (webRunning || htmlRunning) {
+    if (isLoopCurrentlyPlaying('rain')) {
       updateAllDoorMuffleStates();
       return;
     }
@@ -1513,19 +1576,23 @@
 
   const btnSound = document.getElementById('btn-sound');
   btnSound.onclick = () => {
-    unlockAllAudioSync();
+    unlockAudioContextSync();
     isMuted = !isMuted;
     if (isMuted) {
       btnSound.innerText = "🔇 SOUND OFF";
       btnSound.classList.add('muted');
-      stopBreathingSound();
-      stopMp3('titleBgm');
-      stopRainSound();
+      stopActiveWebSourceOnly('breath');
+      stopActiveWebSourceOnly('titleBgm');
+      stopActiveWebSourceOnly('rain');
+      if (htmlAudios.breath) htmlAudios.breath.pause();
+      if (htmlAudios.titleBgm) htmlAudios.titleBgm.pause();
+      if (htmlAudios.rain) htmlAudios.rain.pause();
     } else {
       btnSound.innerText = "🔊 SOUND ON";
       btnSound.classList.remove('muted');
       if (currentScreenName === 'start' && !isStarting) startTitleBgm();
       else if (['story', 'rule', 'play'].includes(currentScreenName)) startRainSound();
+      if (isDoor && isPlaying) startBreathingSound();
     }
   };
 
@@ -1536,7 +1603,7 @@
   function playFootstepForStage(stage) {
     if (stage === 2) playConfiguredSound('plushDrop');
     else if (stage === 3) playConfiguredSound('footstep3', 1.0, false, 1.0);
-    else if (stage === 4) playConfiguredSound('footstep4', 1.0, false, 1.0);
+    else if (stage >= 4) playConfiguredSound('footstep4', 1.0, false, 1.0);
   }
 
   let batteryDeadFootstepActive = false;
@@ -1552,7 +1619,12 @@
     }
   }
 
-  function startBreathingSound() { playConfiguredSound('breath'); }
+  function startBreathingSound() {
+    desiredLoops.breath = true;
+    if (isMuted) return;
+    playConfiguredSound('breath');
+  }
+
   function stopBreathingSound() { stopMp3('breath'); }
 
   function playChildLaugh() {
@@ -1584,7 +1656,9 @@
     if (isMuted) return;
     const ctx = ensureAudioCtx();
     if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') {
+      try { ctx.resume(); } catch (e) {}
+    }
     const masterScale = VOL_CONFIG.jumpscare.val / 100;
     if (masterScale <= 0) return;
 
@@ -1712,11 +1786,12 @@
     }, 250);
   });
 
+  // 「音あり推奨」画面のOKボタン
   let soundNoticeDismissed = false;
   document.getElementById('btn-sound-notice-ok').onclick = () => {
     if (soundNoticeDismissed) return;
     soundNoticeDismissed = true;
-    unlockAllAudioSync();
+    unlockAudioContextSync();
 
     const noticeScreen = document.getElementById('sound-notice-screen');
     document.getElementById('sound-notice-content').classList.remove('visible');
@@ -2068,7 +2143,7 @@
     }, calmDuration));
   }
 
-  // ★扉の開閉：長押ししている間だけ閉まる（離すと開く）
+  // タンスの扉：長押ししている間だけ閉まる（離すと開く）
   function closeDoor(e) {
     if (e) e.preventDefault();
     if (!isPlaying || isEnded || isBatteryDying || isDoor) return;
@@ -2081,7 +2156,7 @@
     isLight = false;
     phoneWrap.classList.remove('tilt-forward');
     btnLight.classList.remove('on-light');
-    btnLight.classList.add('disabled-btn'); // 扉閉鎖中はライトボタンを押せないようにロック
+    btnLight.classList.add('disabled-btn');
     lightBtnLabel.innerText = "ライト";
 
     lockClockEl.innerText = "6:30";
@@ -2154,7 +2229,7 @@
     }, delaySec * 1000);
   }
 
-  // ★8・9・10通目（msgIdx >= 7）ではお化けの足が気持ち少し速くなる
+  // 8・9・10通目（msgIdx >= 7）ではお化けの足が気持ち少し速くなる
   function scheduleAdvance() {
     clearTimeout(advTimer);
     if (isEnded || isBatteryDying) return;
@@ -2368,11 +2443,11 @@
     }
   }
 
-  // スタート演出
+  // スタート演出（STARTボタンを押した瞬間にタイトルBGMをスパッと切る）
   document.getElementById('btn-start').onclick = () => {
     if (isStarting || isStartScareActive) return;
     isStarting = true;
-    unlockAllAudioSync();
+    unlockAudioContextSync();
 
     cancelAnimationFrame(startApproachRafId);
     applyTitleScale(currentTitleScale);
@@ -2420,7 +2495,7 @@
   document.getElementById('btn-story-next').onclick = () => {
     if (storyDone) return;
     storyDone = true;
-    unlockAllAudioSync();
+    unlockAudioContextSync();
 
     fullBlackout.style.transition = "opacity 0.6s ease";
     fullBlackout.classList.add('active');
@@ -2442,7 +2517,7 @@
   document.getElementById('btn-rule-next').onclick = () => {
     if (ruleDone) return;
     ruleDone = true;
-    unlockAllAudioSync();
+    unlockAudioContextSync();
 
     fullBlackout.style.transition = "opacity 1.6s ease-in-out";
     fullBlackout.classList.add('active');
@@ -2465,7 +2540,7 @@
   document.getElementById('btn-ready-arrow').onclick = () => {
     if (isPlaying || isEnded || isBatteryDying) return;
     isPlaying = true;
-    unlockAllAudioSync();
+    unlockAudioContextSync();
 
     document.getElementById('ready-modal-backdrop').style.display = 'none';
     playConfiguredSound('laugh');
