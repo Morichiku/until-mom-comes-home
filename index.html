@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>UNTIL MOM COMES HOME — ママが帰るまで —</title>
+
+<!-- X (旧Twitter) OGP設定 -->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="UNTIL MOM COMES HOME — ママが帰るまで —">
+<meta property="og:description" content="部屋の人形が突然動き出し、タンスの中に隠れた。雷とスマホライトで気配を探りながら、ママに10通のLINEを送って助けを呼べ。">
+<meta property="og:image" content="https://morichiku.github.io/images/title1.png">
+<meta property="og:type" content="website">
+
+<style>
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    margin: 0;
+    padding: 0;
+  }
+  img {
+    pointer-events: none !important;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  body {
+    background-color: #000015;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: 100dvh;
+    background: #000015;
+    overflow: hidden;
+  }
+
+  .crimson-btn {
+    background: linear-gradient(180deg, rgba(16, 16, 36, 0.92) 0%, rgba(5, 5, 18, 0.98) 100%);
+    color: #f7fafc;
+    border: 1.5px solid rgba(220, 38, 38, 0.82);
+    font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-weight: 600;
+    border-radius: 28px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(220, 38, 38, 0.25), inset 0 0 8px rgba(220, 38, 38, 0.12);
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .crimson-btn:active { transform: scale(0.97); }
+
+  .yellow-outline-btn {
+    background: linear-gradient(180deg, rgba(20, 20, 38, 0.92) 0%, rgba(7, 7, 18, 0.98) 100%);
+    color: #fefcbf;
+    border: 1.5px solid rgba(246, 224, 94, 0.78);
+    font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-weight: 600;
+    border-radius: 28px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(246, 224, 94, 0.2), inset 0 0 8px rgba(246, 224, 94, 0.1);
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, opacity 0.8s ease;
+  }
+  .yellow-outline-btn:active { transform: scale(0.97); }
+
+  .heartbeat-only {
+    animation: crimsonHeartbeat 1.35s infinite ease-in-out;
+  }
+  @keyframes crimsonHeartbeat {
+    0%, 29%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 14px rgba(220, 38, 38, 0.25), inset 0 0 8px rgba(220, 38, 38, 0.12);
+      border-color: rgba(220, 38, 38, 0.75);
+    }
+    7% {
+      transform: scale(1.08);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.6), inset 0 0 14px rgba(239, 68, 68, 0.28);
+      border-color: rgba(252, 165, 165, 0.98);
+    }
+    14% { transform: scale(0.98); }
+    21% {
+      transform: scale(1.055);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.48), inset 0 0 12px rgba(239, 68, 68, 0.22);
+      border-color: rgba(248, 113, 113, 0.92);
+    }
+  }
+
+  /* 音あり推奨画面 */
+  #sound-notice-screen {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 28px;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 1.8s ease-in-out;
+  }
+  #sound-notice-screen.fade-out { opacity: 0; pointer-events: none; }
+  #sound-notice-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 1.8s ease-in-out, transform 1.8s ease-in-out;
+  }
+  #sound-notice-content.visible { opacity: 1; transform: translateY(0); }
+  .sound-notice-icon {
+    width: 48px;
+    height: 48px;
+    stroke: #fff;
+    stroke-width: 1.7;
+    fill: none;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
+  }
+  .sound-notice-text {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Sans JP", serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #fff;
+    line-height: 1.8;
+  }
+  #btn-sound-notice-ok {
+    margin-top: 8px;
+    width: 170px;
+    padding: 11px 0;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-indent: 3px;
+  }
+
+  /* 1. スタート画面 */
+  #start-screen {
+    position: absolute;
+    inset: 0;
+    background-color: #000015;
+    background-image: radial-gradient(circle at 50% 48%, rgba(25, 35, 80, 0.22) 0%, rgba(5, 7, 25, 0.85) 55%, rgba(0, 0, 15, 0.98) 85%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 34px 20px 30px;
+    text-align: center;
+    transition: background-color 0.15s ease, background-image 0.15s ease;
+    overflow: hidden;
+  }
+  #start-heartbeat-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    background: radial-gradient(circle at 50% 50%, transparent 32%, rgba(0, 0, 5, 0.65) 68%, rgba(0, 0, 0, 0.96) 100%);
+    animation: heartbeatPulse 1.35s infinite ease-in-out;
+  }
+  @keyframes heartbeatPulse {
+    0%, 100% { opacity: 0.72; transform: scale(1.02); }
+    14%      { opacity: 1.00; transform: scale(0.94); }
+    28%      { opacity: 0.78; transform: scale(0.99); }
+    42%      { opacity: 0.96; transform: scale(0.96); }
+    70%      { opacity: 0.70; transform: scale(1.03); }
+  }
+  #boot-veil {
+    position: absolute;
+    inset: 0;
+    background: #000015;
+    z-index: 55;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 2.2s ease-in-out;
+  }
+  #boot-veil.fade-out { opacity: 0; }
+  #start-screen.monochrome-bg {
+    background-color: #080808;
+    background-image: radial-gradient(circle at 50% 48%, #242424 0%, #0a0a0a 60%, #000 95%);
+  }
+  #start-screen.monochrome-bg #title-header,
+  #start-screen.monochrome-bg #poster-bottom,
+  #start-screen.monochrome-bg #btn-sound { filter: grayscale(100%); }
+
+  .stagger-item {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1), transform 1.0s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .stagger-item.appear { opacity: 1; transform: translateY(0); }
+
+  #btn-sound {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(226, 232, 240, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+  }
+  #btn-sound.muted {
+    color: rgba(113, 128, 150, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  #title-header {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .title-sub {
+    font-size: 9.5px;
+    letter-spacing: 6px;
+    color: rgba(160, 174, 192, 0.75);
+    margin-bottom: 8px;
+    text-indent: 6px;
+  }
+  #title-header h1 {
+    font-family: "Times New Roman", "Didot", "Georgia", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: 26px;
+    letter-spacing: 3.5px;
+    color: #f7fafc;
+    font-weight: 400;
+    line-height: 1.15;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.95), 0 0 18px rgba(160, 190, 255, 0.25);
+    margin-bottom: 8px;
+  }
+  .title-jp {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    color: rgba(226, 232, 240, 0.85);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+  }
+  #load-status { font-size: 10px; color: #fc8181; margin-top: 4px; min-height: 14px; }
+
+  #title-art-box {
+    position: relative;
+    z-index: 7;
+    width: 100%;
+    flex: 1;
+    max-height: 54dvh;
+    margin: -10px 0 -14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  #title-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+    filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.95));
+    transform: scale(0.15);
+    transform-origin: center center;
+    will-change: transform;
+  }
+  #title-art-placeholder {
+    font-size: 11px;
+    color: rgba(113, 128, 150, 0.4);
+    transform: scale(0.15);
+  }
+  #poster-bottom {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  #rule-billing {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Sans JP", serif;
+    font-size: 11px;
+    color: rgba(203, 213, 224, 0.78);
+    line-height: 1.85;
+    letter-spacing: 0.8px;
+    text-shadow: 0 2px 8px #000, 0 0 12px #000;
+  }
+  #rule-billing b { color: rgba(254, 240, 138, 0.92); font-weight: 500; }
+  #btn-start {
+    position: relative;
+    z-index: 6;
+    width: 210px;
+    padding: 12px 0;
+    font-size: 14px;
+    letter-spacing: 5px;
+    text-indent: 5px;
+  }
+
+  /* 2. 物語説明画面 ＆ 3. ルール説明画面 */
+  .intro-screen-base {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 48;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 28px 14px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .intro-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.28) blur(5px);
+    transform: scale(1.06);
+    z-index: -1;
+  }
+  .story-container {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-bottom: 44px;
+    padding: 10px 6px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .story-line {
+    font-size: 15px;
+    color: #e2e8f0;
+    line-height: 1.9;
+    letter-spacing: 1.2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 18px rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1.4s ease, transform 1.4s ease;
+  }
+  .story-line.show { opacity: 1; transform: translateY(0); }
+  .story-line.spoken {
+    color: #fc8181;
+    font-weight: bold;
+    font-size: 16.5px;
+    line-height: 1.75;
+    letter-spacing: 1.4px;
+  }
+  .rule-detail-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+    background: rgba(8, 11, 18, 0.76);
+    padding: 24px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(246, 224, 94, 0.38);
+    backdrop-filter: blur(4px);
+    width: 100%;
+    max-width: 370px;
+    text-align: left;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.85);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .rule-detail-card.show { opacity: 1; transform: translateY(0); }
+  .rule-detail-header {
+    text-align: center;
+    font-family: "Times New Roman", "Hiragino Mincho ProN", serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: #f6e05e;
+    border-bottom: 1px solid rgba(246, 224, 94, 0.35);
+    padding-bottom: 8px;
+  }
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #e2e8f0;
+    line-height: 1.65;
+  }
+  .rule-bullet { color: #f6e05e; font-weight: bold; flex-shrink: 0; }
+  .rule-item b { color: #fefcbf; }
+  .intro-next-btn {
+    padding: 12px 44px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .intro-next-btn.show { opacity: 1; pointer-events: auto; }
+
+  /* プレイ前のメッセージ */
+  #ready-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 20;
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 44px 16px 0;
+  }
+  #ready-window {
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .ready-msg {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(247, 250, 252, 0.92);
+    line-height: 1.4;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.9);
+  }
+  #btn-ready-arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    padding-left: 2px;
+  }
+
+  #full-blackout {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+  #full-blackout.active { opacity: 1; }
+
+  .gameplay-element { display: none; }
+  body.in-game #scene-layer,
+  body.in-game #stage-blackout,
+  body.in-game #flash-overlay,
+  body.in-game #vignette-layer { display: block; }
+  body.in-game #locker-door,
+  body.in-game #smartphone-wrapper,
+  body.in-game #hud { display: flex; }
+
+  /* Layer 1: A〜J メイン画像部 */
+  #scene-layer { position: absolute; inset: 0; background: #000; z-index: 1; overflow: hidden; }
+  #scene-layer.start-scare-mode { display: block !important; z-index: 58 !important; }
+  #scene-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    animation: roomBreath 8s ease-in-out infinite;
+  }
+  @keyframes roomBreath {
+    0%, 100% { transform: scale(1.015) translate(0px, 0px); }
+    50%      { transform: scale(1.015) translate(-1px, 1.5px); }
+  }
+  #stage-blackout {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.08s ease;
+  }
+  #stage-blackout.active { opacity: 1; }
+  #scene-img.jumpscare-attack { animation: scareShake 0.06s infinite !important; }
+  @keyframes scareShake {
+    0%   { transform: translate(12px, -10px) scale(1.18) rotate(2deg); }
+    25%  { transform: translate(-14px, 8px) scale(1.22) rotate(-2deg); }
+    50%  { transform: translate(10px, 14px) scale(1.15) rotate(1deg); }
+    75%  { transform: translate(-12px, -12px) scale(1.22) rotate(-2.5deg); }
+    100% { transform: translate(8px, 6px) scale(1.18) rotate(1.5deg); }
+  }
+  #flash-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(210, 230, 255, 0.18);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+  }
+  #flash-overlay.active { opacity: 1; }
+  #white-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%);
+    z-index: 59;
+    pointer-events: none;
+    display: none;
+    animation: whiteStrobe 0.07s infinite alternate;
+  }
+  @keyframes whiteStrobe { from { opacity: 0.05; } to { opacity: 0.85; } }
+  #vignette-layer {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.72) 100%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Layer 2: タンスの扉 */
+  #locker-door {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    transform: translateX(-94%);
+    transition: transform 1.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 15px 0 40px rgba(0,0,0,0.95);
+    overflow: hidden;
+  }
+  #locker-door.closed {
+    transform: translateX(0%);
+    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  #locker-door.blown-open {
+    transform: translateX(-105%) !important;
+    transition: transform 0.15s ease-in !important;
+  }
+  #door-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
+  #door-fallback {
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 2px, transparent 2px, transparent 48px),
+      linear-gradient(90deg, #2b180e 0%, #3d2314 35%, #4a2c1a 60%, #24130a 100%);
+    border-right: 8px solid #1a0d06;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+  .wood-panel {
+    width: 72%;
+    padding: 22px 16px;
+    margin-bottom: 28%;
+    border: 4px solid #1f1108;
+    background: rgba(20, 10, 4, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .slit { height: 10px; background: #050302; border-bottom: 1px solid #5c3822; }
+  #door-light-reflection {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(circle 320px at 50% 72%, rgba(240, 248, 255, 0.22) 0%, rgba(215, 232, 255, 0.11) 42%, rgba(195, 215, 255, 0.04) 68%, transparent 92%);
+    transform: translateX(94%);
+    transition: transform 1.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  #locker-door.closed #door-light-reflection {
+    transform: translateX(0%);
+    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  #door-light-reflection.light-off { opacity: 0 !important; }
+
+  /* Layer 3: スマホUI */
+  #smartphone-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 268px;
+    height: 38dvh;
+    min-height: 255px;
+    max-height: 320px;
+    transform: translateX(-50%) translateY(0%);
+    z-index: 5;
+    flex-direction: column;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    perspective: 580px;
+  }
+  #smartphone-wrapper.slide-down { transform: translateX(-50%) translateY(26%); }
+  #smartphone-wrapper.drop-away { transform: translateX(-50%) translateY(120%) rotate(12deg) !important; }
+
+  #ctrl-bar { display: flex; gap: 10px; margin-bottom: 8px; padding: 0 4px; z-index: 15; }
+  .action-btn {
+    flex: 1;
+    background: rgba(10, 12, 18, 0.65);
+    color: rgba(226, 232, 240, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: none;
+  }
+  .action-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; pointer-events: none; }
+  .action-btn span { pointer-events: none; }
+  .action-btn:active { transform: scale(0.96); }
+  .action-btn.on-light {
+    background: rgba(250, 240, 205, 0.18);
+    color: #fefcbf;
+    border-color: rgba(254, 240, 138, 0.65);
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.3), inset 0 0 10px rgba(254, 240, 138, 0.2);
+  }
+  .action-btn.on-door {
+    background: rgba(185, 28, 28, 0.28);
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow: 0 0 16px rgba(220, 38, 38, 0.28), inset 0 0 8px rgba(248, 113, 113, 0.15);
+  }
+  .action-btn.disabled-btn {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  #phone-sway-box {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: phoneNaturalSway 5.2s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+  @keyframes phoneNaturalSway {
+    0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+    35%      { transform: translate(1.2px, -3.5px) rotate(0.22deg); }
+    70%      { transform: translate(-1.0px, -1.8px) rotate(-0.18deg); }
+  }
+  #phone-frame {
+    position: relative;
+    flex: 1;
+    background: #040507;
+    border: 4px solid #12151c;
+    border-bottom: none;
+    border-radius: 26px 26px 0 0;
+    padding: 6px 6px 0 6px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -12px 38px rgba(175, 210, 255, 0.15), 0 -3px 16px rgba(220, 240, 255, 0.10), 0 -6px 25px rgba(0, 0, 0, 0.98);
+    overflow: hidden;
+    transform-origin: bottom center;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  }
+  #smartphone-wrapper.tilt-forward #phone-frame {
+    transform: rotateX(25deg) translateY(9px) scale(0.97);
+    box-shadow: 0 -35px 70px rgba(255, 250, 220, 0.32), 0 -12px 30px rgba(255, 245, 200, 0.22), 0 10px 30px rgba(0, 0, 0, 0.98);
+  }
+  #phone-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px 22px 0 0;
+    background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.14) 0%, transparent 60%), linear-gradient(135deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 55%);
+    pointer-events: none;
+    z-index: 10;
+  }
+  #phone-frame.glow-off { box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.98) !important; transition: none !important; }
+  #phone-frame.glow-off::after { opacity: 0 !important; }
+  .phone-speaker { width: 38px; height: 4px; background: #14171f; border-radius: 2px; margin: 0 auto 5px; }
+  #phone-screen { position: relative; flex: 1; background: #354256; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+
+  #flashlight-screen-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 42%, #1e2430 0%, #090b10 100%);
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #smartphone-wrapper.tilt-forward #flashlight-screen-overlay { opacity: 1; pointer-events: auto; }
+  .ios-torch-circle {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background: rgba(255, 250, 225, 0.95);
+    box-shadow: 0 0 35px rgba(255, 240, 170, 0.75), 0 0 12px rgba(255, 255, 255, 0.9), inset 0 0 15px #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .ios-torch-circle svg { width: 44px; height: 44px; stroke: #111318; stroke-width: 2; fill: #111318; }
+  .ios-torch-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; color: rgba(254, 240, 138, 0.9); }
+
+  #lock-screen-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, #151924 0%, #07090e 100%);
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 12px 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    overflow: hidden;
+  }
+  #smartphone-wrapper.locked #lock-screen-overlay { opacity: 1; }
+  #lock-blackout-mask { position: absolute; inset: 0; background: #000; z-index: 12; opacity: 0; pointer-events: none; }
+  #lock-screen-overlay.flicker-off #lock-blackout-mask { opacity: 1; }
+  #lock-scare-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 11; display: none; }
+  .lock-top-group { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .lock-padlock-icon { width: 14px; height: 14px; stroke: rgba(240, 246, 255, 0.85); stroke-width: 2; fill: none; margin-bottom: 2px; }
+  #lock-clock-time { font-size: 46px; font-weight: 200; letter-spacing: 2px; color: rgba(248, 252, 255, 0.95); line-height: 1.05; text-shadow: 0 0 18px rgba(220, 238, 255, 0.35); font-variant-numeric: tabular-nums; }
+  .lock-bottom-group { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
+  .lock-Status-note { font-size: 10px; color: rgba(203, 213, 224, 0.65); letter-spacing: 0.5px; }
+  .lock-home-bar { width: 88px; height: 4px; background: rgba(255, 255, 255, 0.65); border-radius: 2px; }
+
+  #battery-dead-overlay { position: absolute; inset: 0; background: #000; z-index: 14; display: none; justify-content: center; align-items: center; }
+  #battery-dead-icon { width: 76px; height: 40px; opacity: 0; }
+  #battery-dead-icon.visible { opacity: 1; }
+
+  #line-header { background: #1d2430; color: #fff; padding: 5px 10px; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+  #battery-disp { color: #68d391; font-size: 10px; font-weight: bold; }
+  .battery-critical { color: #ff4444 !important; animation: blinkCrit 0.4s infinite alternate; }
+  @keyframes blinkCrit { from { opacity: 1; } to { opacity: 0.3; } }
+
+  #line-chat-area { flex: 1; padding: 6px 8px; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; overflow: hidden; }
+  .my-row { display: flex; justify-content: flex-end; align-items: flex-end; gap: 4px; }
+  .read-label { font-size: 9px; color: #cbd5e0; line-height: 1; }
+  #last-sent-bubble { background: #8de055; color: #111; padding: 4px 8px; border-radius: 12px; border-top-right-radius: 2px; font-size: 11px; max-width: 82%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .friend-row { display: flex; align-items: flex-start; gap: 5px; transition: opacity 0.2s ease; }
+  .friend-icon { width: 20px; height: 20px; border-radius: 50%; background: #f6ad55; color: #1a202c; font-size: 10px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-weight: bold; }
+  #friend-msg { background: #fff; color: #111; padding: 4px 8px; border-radius: 12px; border-top-left-radius: 2px; font-size: 11px; line-height: 1.3; max-width: 85%; }
+
+  #line-input-bar { background: #e2e6ec; padding: 4px 6px; display: flex; align-items: center; gap: 5px; border-top: 1px solid #cbd5e0; }
+  #typed-box { flex: 1; background: #fff; border: 1px solid #cbd5e0; border-radius: 14px; padding: 3px 8px; display: flex; justify-content: space-between; align-items: center; min-height: 24px; }
+  #typed-text { font-size: 12px; font-weight: bold; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #next-char-hint { font-size: 10px; color: #06c755; font-weight: bold; flex-shrink: 0; margin-left: 4px; }
+  .send-icon { width: 22px; height: 22px; border-radius: 50%; background: #06c755; color: #fff; font-size: 10px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+
+  #keypad { background: #c4cad4; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px 8px 10px; }
+  .key-btn { background: #fff; color: #111; border: none; border-radius: 6px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 0 #8e96a4; }
+  .key-btn:active { background: #e5e7eb; transform: translateY(1px); box-shadow: 0 1px 0 #8e96a4; }
+
+  #hud { position: absolute; top: 12px; left: 14px; right: 14px; z-index: 10; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 0 1px 4px #000; pointer-events: none; }
+
+  /* 4. 結果画面 */
+  #overlay { position: absolute; inset: 0; background: #000; z-index: 35; display: none; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 10px 14px; text-align: center; opacity: 0; transition: opacity 0.55s ease; overflow: hidden; }
+  #overlay.fade-in { opacity: 1; }
+  #window-line { background: #11141d; border: 1px solid #2d3748; padding: 10px 12px; border-radius: 16px; width: 100%; max-width: 355px; box-shadow: 0 12px 32px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 6px; opacity: 0; transform: translateY(145px); transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; }
+  #window-line.center-stage { opacity: 1; transform: translateY(145px); }
+  #window-line.move-to-top { opacity: 1; transform: translateY(0); }
+  #final-chat-window { background: #354256; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; text-align: left; max-height: 150px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; border: 2px solid #1d2430; }
+  .fc-row-me { display: flex; justify-content: flex-end; align-items: flex-end; gap: 4px; }
+  .fc-bubble-me { background: #8de055; color: #111; padding: 5px 9px; border-radius: 12px; border-top-right-radius: 3px; font-size: 11px; font-weight: bold; max-width: 85%; }
+  .fc-row-friend { display: flex; align-items: flex-start; gap: 6px; opacity: 0; transform: translateY(5px); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .fc-row-friend.visible { opacity: 1; transform: translateY(0); }
+  .fc-bubble-friend { background: #fff; color: #111; padding: 5px 9px; border-radius: 12px; border-top-left-radius: 3px; font-size: 11px; line-height: 1.35; max-width: 85%; }
+  #death-reason { font-size: 12px; font-weight: bold; color: #e2e8f0; line-height: 1.45; }
+
+  #window-media { background: #11141d; border: 1px solid #2d3748; padding: 10px 12px; border-radius: 16px; width: 100%; max-width: 355px; box-shadow: 0 12px 32px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 8px; overflow: hidden; opacity: 0; transition: opacity 0.35s ease; }
+  #window-media.visible { opacity: 1; }
+  #result-art-box { width: 100%; max-width: 255px; aspect-ratio: 4 / 3; margin: 0 auto; background: #080a0f; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; opacity: 0; transform: translateX(115%); transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease; }
+  #result-art-box.slide-in-right { opacity: 1; transform: translateX(0); }
+  #result-img { width: 100%; height: 100%; object-fit: contain; display: none; }
+  #result-art-placeholder { font-size: 11px; color: #4b5563; }
+  #result-footer-section { display: flex; flex-direction: column; gap: 8px; opacity: 0; transform: translateY(24px); transition: transform 0.65s ease, opacity 0.65s ease; }
+  #result-footer-section.float-up { opacity: 1; transform: translateY(0); }
+  .end-btn-row { display: flex; gap: 8px; }
+  .end-btn { flex: 1; padding: 9px 6px; border-radius: 22px; font-weight: bold; font-size: 12px; border: none; cursor: pointer; text-decoration: none; display: flex; justify-content: center; align-items: center; }
+  #share-link { background: linear-gradient(180deg, #2b5668 0%, #1b3947 100%); color: #f3efe6; border: 1px solid rgba(144, 205, 244, 0.35); }
+  #btn-retry-end { background: linear-gradient(180deg, #2e1b12 0%, #1c100a 100%); color: #e6e1d6; border: 1px solid rgba(196, 123, 10, 0.35); }
+  #creator-credit { margin-top: 2px; padding-top: 8px; border-top: 1px solid #2d3748; display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; }
+  #creator-icon { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #4a5568; background: #1a202c; flex-shrink: 0; }
+  .credit-text { font-size: 11px; color: #cbd5e0; line-height: 1.45; }
+  .credit-text a { color: #63b3ed; text-decoration: underline; font-weight: bold; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <!-- スタート画面前の「音あり推奨」画面 -->
+  <div id="sound-notice-screen">
+    <div id="sound-notice-content">
+      <svg class="sound-notice-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      <div class="sound-notice-text">音ありでプレイすることを<br>お勧めします</div>
+      <button type="button" id="btn-sound-notice-ok" class="crimson-btn">OK</button>
+    </div>
+  </div>
+
+  <div id="boot-veil"></div>
+  <div id="full-blackout"></div>
+
+  <!-- 1. スタート画面 -->
+  <div id="start-screen">
+    <div id="start-heartbeat-vignette"></div>
+    <button type="button" id="btn-sound" class="stagger-item">🔊 SOUND ON</button>
+    <div id="title-header" class="stagger-item">
+      <div class="title-sub">SURVIVAL HORROR</div>
+      <h1>UNTIL MOM COMES HOME</h1>
+      <div class="title-jp">— ママが帰るまで —</div>
+      <div id="load-status"></div>
+    </div>
+    <div id="title-art-box" class="stagger-item">
+      <img id="title-img" alt="title illustration">
+      <div id="title-art-placeholder">Title Illustration (title1.png / .jpg)</div>
+    </div>
+    <div id="poster-bottom" class="stagger-item">
+      <div id="rule-billing">
+        雷とライトで気配を探り、ママに<b>10通のLINE</b>を送れ。<br>
+        近くまで迫られたら、タンスを閉めてやり過ごすこと。
+      </div>
+      <button type="button" id="btn-start" class="crimson-btn">START</button>
+    </div>
+  </div>
+
+  <!-- 2. 物語説明画面 -->
+  <div id="story-screen" class="intro-screen-base">
+    <img id="story-bg-img" class="intro-bg-img" alt="">
+    <div class="story-container">
+      <div class="story-line" id="s-line-0">……あれ？ 今、棚の上のぬいぐるみと<br>目が合った気がする。</div>
+      <div class="story-line spoken" id="s-line-1">「……えっ、うそ……<br>急に動き出した……！？」</div>
+      <div class="story-line" id="s-line-2">タンスの扉、壊れててうまく閉まらないけど……<br>とにかく中に隠れなきゃ！</div>
+      <div class="story-line" id="s-line-3">はやくママにLINEして、<br>助けを呼ばないと……！</div>
+    </div>
+    <button type="button" id="btn-story-next" class="intro-next-btn yellow-outline-btn">次に進む</button>
+  </div>
+
+  <!-- 3. ルール説明画面 -->
+  <div id="rule-screen" class="intro-screen-base">
+    <img id="rule-bg-img" class="intro-bg-img" alt="">
+    <div class="rule-detail-card" id="rule-detail-card">
+      <div class="rule-detail-header">HOW TO PLAY</div>
+      <div class="rule-item">
+        <span class="rule-bullet">◆</span>
+        <div><b>雷やライトで姿を確認しよう</b><br>暗闇の中をぬいぐるみが近づいてきます。雷の光やスマホのライトで位置を確かめましょう。</div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-bullet">◆</span>
+        <div><b>近くまで来たら、タンスの扉を閉めよう</b><br>すぐ近くまで迫られたら、「閉める」を押し続けてタンスの扉を閉め、離れていくのを待ちましょう。</div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-bullet">◆</span>
+        <div><b>LINEを10通送り切ろう</b><br>ぬいぐるみに警戒しながら、もうすぐ帰ってくるママにメッセージを10通送り切れば生還です。</div>
+      </div>
+    </div>
+    <button type="button" id="btn-rule-next" class="intro-next-btn yellow-outline-btn">次に進む</button>
+  </div>
+
+  <!-- プレイ開始前の合図 -->
+  <div id="ready-modal-backdrop">
+    <div id="ready-window">
+      <div class="ready-msg">
+        雷やライトで前を警戒しつつ、ママにメッセージを送り切ろう
+      </div>
+      <button type="button" id="btn-ready-arrow" class="crimson-btn heartbeat-only" aria-label="プレイ開始">▶</button>
+    </div>
+  </div>
+
+  <div id="hud" class="gameplay-element">
+    <span id="hud-progress">SOS: 0/10</span>
+  </div>
+
+  <!-- Layer 1: A〜J メイン画像部 -->
+  <div id="scene-layer" class="gameplay-element">
+    <img id="scene-img" alt="scene">
+  </div>
+  <div id="stage-blackout" class="gameplay-element"></div>
+  <div id="flash-overlay" class="gameplay-element"></div>
+  <div id="vignette-layer" class="gameplay-element"></div>
+  <div id="white-flash"></div>
+
+  <!-- Layer 2: タンスの扉 -->
+  <div id="locker-door" class="gameplay-element">
+    <img id="door-img" alt="wardrobe door">
+    <div id="door-fallback">
+      <div class="wood-panel">
+        <div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div><div class="slit"></div>
+      </div>
+    </div>
+    <div id="door-light-reflection"></div>
+  </div>
+
+  <!-- Layer 3: LINE風スマホ -->
+  <div id="smartphone-wrapper" class="gameplay-element">
+    <div id="ctrl-bar">
+      <button type="button" class="action-btn" id="btn-door">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+          <line x1="9" y1="12" x2="9" y2="12.01"/>
+          <line x1="15" y1="12" x2="15" y2="12.01"/>
+        </svg>
+        <span id="door-btn-label">閉める</span>
+      </button>
+      <button type="button" class="action-btn" id="btn-light">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+        <span id="light-btn-label">ライト</span>
+      </button>
+    </div>
+
+    <div id="phone-sway-box">
+      <div id="phone-frame">
+        <div class="phone-speaker"></div>
+        <div id="phone-screen">
+          <div id="flashlight-screen-overlay">
+            <div class="ios-torch-circle">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2h8l-1.5 6v12a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8L8 2z"/>
+                <line x1="12" y1="12" x2="12" y2="15" stroke="#fff" stroke-width="2.2"/>
+              </svg>
+            </div>
+            <div class="ios-torch-label">LIGHT ON</div>
+          </div>
+
+          <div id="lock-screen-overlay">
+            <div id="lock-blackout-mask"></div>
+            <img id="lock-scare-img" alt="scare">
+            <div class="lock-top-group">
+              <svg class="lock-padlock-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+              </svg>
+              <div id="lock-clock-time">6:30</div>
+            </div>
+            <div class="lock-bottom-group">
+              <div class="lock-Status-note">画面ロック中</div>
+              <div class="lock-home-bar"></div>
+            </div>
+          </div>
+
+          <div id="battery-dead-overlay">
+            <svg id="battery-dead-icon" viewBox="0 0 80 42">
+              <rect x="2" y="4" width="68" height="34" rx="6" fill="none" stroke="#ef4444" stroke-width="3.5"/>
+              <path d="M73 14v14" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+              <rect x="7" y="9" width="6" height="24" rx="2" fill="#ef4444"/>
+            </svg>
+          </div>
+
+          <div id="line-header">
+            <span>＜ ママ</span>
+            <span id="battery-disp">🔋100%</span>
+          </div>
+
+          <div id="line-chat-area">
+            <div class="my-row" id="my-last-row" style="display:none;">
+              <span class="read-label">既読</span>
+              <div id="last-sent-bubble"></div>
+            </div>
+            <div class="friend-row" id="friend-last-row">
+              <div class="friend-icon">母</div>
+              <div id="friend-msg">もうすぐ帰るけど、ご飯食べた？</div>
+            </div>
+          </div>
+
+          <div id="line-input-bar">
+            <div id="typed-box">
+              <div id="typed-text"></div>
+              <div id="next-char-hint"></div>
+            </div>
+            <div class="send-icon">▶</div>
+          </div>
+
+          <div id="keypad">
+            <button type="button" class="key-btn" id="k0">あ</button>
+            <button type="button" class="key-btn" id="k1">い</button>
+            <button type="button" class="key-btn" id="k2">う</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 結果画面 -->
+  <div id="overlay">
+    <div id="window-line">
+      <h2 id="end-title" style="font-size:19px;">GAME OVER</h2>
+      <div id="death-reason"></div>
+      <div id="final-chat-window"></div>
+    </div>
+    <div id="window-media">
+      <div id="result-art-box">
+        <img id="result-img" alt="result illustration">
+        <div id="result-art-placeholder">Result Illustration (960×720)</div>
+      </div>
+      <div id="result-footer-section">
+        <div class="end-btn-row">
+          <a id="share-link" class="end-btn" href="#" target="_blank" rel="noopener noreferrer">𝕏 で結果をポスト</a>
+          <button type="button" id="btn-retry-end" class="end-btn" onclick="location.reload()">タイトルへ戻る</button>
+        </div>
+        <div id="creator-credit">
+          <img id="creator-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%232d3748'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23cbd5e0' font-size='14' font-family='sans-serif'%3Eも%3C/text%3E%3C/svg%3E" alt="icon">
+          <div class="credit-text">
+            製作・キャラクターデザイン:もりちく<br>
+            <a href="https://morichiku.github.io/" target="_blank" rel="noopener noreferrer">https://morichiku.github.io/</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
+  window.addEventListener('dragstart', e => e.preventDefault(), { passive: false });
+
+  // ==========================================
+  // 1. 画像ローダー
+  // ==========================================
+  const KEYS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+  const IMAGES = {};
+  const END_IMAGES = {};
+  const loadedStatus = {};
+  const loadStatusEl = document.getElementById('load-status');
+  const candidateDirs = ["images/", "./", ""];
+  const candidateExts = [".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".webp"];
+
+  function resolveImageKey(key) {
+    let candidates = [];
+    candidateDirs.forEach(dir => {
+      candidateExts.forEach(ext => {
+        candidates.push(`${dir}${key}${ext}`);
+        candidates.push(`${dir}${key.toLowerCase()}${ext}`);
+      });
+    });
+    let idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) {
+        loadedStatus[key] = false;
+        updateLoadSummary();
+        return;
+      }
+      const url = candidates[idx++];
+      const testImg = new Image();
+      testImg.onload = () => {
+        IMAGES[key] = url;
+        loadedStatus[key] = true;
+        if (key === "A" && !document.getElementById('scene-img').src) document.getElementById('scene-img').src = url;
+        if (key === "B") document.getElementById('rule-bg-img').src = url;
+        if (key === "J") document.getElementById('lock-scare-img').src = url;
+        updateLoadSummary();
+      };
+      testImg.onerror = tryNext;
+      testImg.src = url;
+    }
+    tryNext();
+  }
+
+  function resolveSpecialImage(namesList, onSuccess) {
+    let candidates = [];
+    candidateDirs.forEach(dir => {
+      namesList.forEach(name => {
+        candidateExts.forEach(ext => candidates.push(`${dir}${name}${ext}`));
+      });
+    });
+    let idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) return;
+      const url = candidates[idx++];
+      const testImg = new Image();
+      testImg.onload = () => onSuccess(url);
+      testImg.onerror = tryNext;
+      testImg.src = url;
+    }
+    tryNext();
+  }
+
+  let storyBgXUrl = null;
+  resolveSpecialImage(["X", "x"], url => {
+    storyBgXUrl = url;
+    document.getElementById('story-bg-img').src = url;
+  });
+  resolveSpecialImage(["door", "DOOR", "K", "k", "tansu"], url => {
+    const d = document.getElementById('door-img');
+    d.src = url;
+    d.style.display = 'block';
+    document.getElementById('door-fallback').style.display = 'none';
+  });
+  let titleImg1Url = null;
+  resolveSpecialImage(["title1", "title_1", "TITLE1", "title", "TITLE"], url => {
+    titleImg1Url = url;
+    const t = document.getElementById('title-img');
+    t.src = url;
+    t.style.display = 'block';
+    document.getElementById('title-art-placeholder').style.display = 'none';
+  });
+  let titleImg2Url = null;
+  resolveSpecialImage(["title2", "title_2", "TITLE2"], url => { titleImg2Url = url; });
+  resolveSpecialImage(["icon", "ICON", "morichiku", "profile"], url => { document.getElementById('creator-icon').src = url; });
+
+  for (let i = 0; i <= 10; i++) {
+    resolveSpecialImage([`end${i}`, `END${i}`, `end_${i}`, `${i}`, `gameover${i}`, `over${i}`], url => { END_IMAGES[i] = url; });
+  }
+  resolveSpecialImage(["clear", "CLEAR", "end_clear", "L", "l"], url => { END_IMAGES.clear = url; });
+
+  function updateLoadSummary() {
+    const keysDone = Object.keys(loadedStatus);
+    if (keysDone.length < KEYS.length) return;
+    const missing = KEYS.filter(k => !loadedStatus[k]);
+    loadStatusEl.innerText = missing.length === 0 ? "" : `※未検出の画像: ${missing.join(", ")}`;
+  }
+  KEYS.forEach(k => resolveImageKey(k));
+
+  // ==========================================
+  // 2. 同期アンロック＆WebAudioハイブリッドエンジン（Safari / Chrome完全対応）
+  // ==========================================
+  let isMuted = false;
+  let currentScreenName = "start";
+  let rainFadeInterval = null;
+
+  const VOL_CONFIG = {
+    titleBgm:  { val: 15,  audioKey: "titleBgm", boost: 1, muffleWhenDoor: false },
+    rain:      { val: 14,  audioKey: "rain", boost: 1, muffleWhenDoor: true },
+    tap:       { val: 32,  audioKey: "tap", boost: 1, muffleWhenDoor: false },
+    notify:    { val: 60,  audioKey: "notify", boost: 1, muffleWhenDoor: false },
+    thunder:   { val: 76,  audioKey: "thunder", boost: 1, muffleWhenDoor: true },
+    plushDrop: { val: 90,  audioKey: "plushDrop", boost: 1, muffleWhenDoor: true },
+    footstep3: { val: 100, audioKey: "footstep", boost: 3, muffleWhenDoor: true },
+    footstep4: { val: 100, audioKey: "footstep", boost: 3, muffleWhenDoor: true },
+    breath:    { val: 100, audioKey: "breath", boost: 1, muffleWhenDoor: false },
+    laugh:     { val: 18,  audioKey: "laugh", boost: 1, muffleWhenDoor: true },
+    doorClose: { val: 100, audioKey: "doorClose", boost: 1, muffleWhenDoor: false },
+    doorOpen:  { val: 11,  audioKey: "doorOpen", boost: 1, muffleWhenDoor: false },
+    jumpscare: { val: 80,  audioKey: null, boost: 1, muffleWhenDoor: false },
+    clear:     { val: 14,  audioKey: "clear", boost: 1, muffleWhenDoor: false }
+  };
+
+  const SOUND_FILES = {
+    titleBgm:  ["sounds/title_bgm.mp3", "title_bgm.mp3", "sounds/title.mp3", "title.mp3", "sounds/bgm.mp3", "bgm.mp3"],
+    rain:      ["sounds/rain.mp3", "rain.mp3"],
+    thunder:   ["sounds/thunder.mp3", "thunder.mp3"],
+    plushDrop: ["sounds/plush_drop.mp3", "plush_drop.mp3"],
+    footstep:  ["sounds/footstep.mp3", "footstep.mp3"],
+    breath:    ["sounds/breath.mp3", "breath.mp3"],
+    laugh:     ["sounds/laugh.mp3", "laugh.mp3"],
+    doorClose: ["sounds/door_close.mp3", "door_close.mp3"],
+    doorOpen:  ["sounds/door_open.mp3", "door_open.mp3"],
+    tap:       ["sounds/tap.mp3", "tap.mp3"],
+    notify:    ["sounds/line_notify.mp3", "line_notify.mp3"],
+    clear:     ["sounds/clear.mp3", "clear.mp3"]
+  };
+
+  let audioCtx = null;
+  const rawBuffers = {};
+  const decodedBuffers = {};
+  const activeSources = {};
+  const htmlAudios = {};
+  const footstepPool = [];
+
+  function ensureAudioCtx() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function setupSoundKey(key) {
+    const isLoop = (key === 'breath' || key === 'titleBgm' || key === 'rain');
+    const paths = SOUND_FILES[key];
+    let idx = 0;
+
+    function registerHtmlAudio() {
+      if (idx >= paths.length) return;
+      const url = paths[idx++];
+      const a = new Audio();
+      a.preload = "auto";
+      a.loop = isLoop;
+      a.src = url;
+      a.addEventListener('error', registerHtmlAudio, { once: true });
+      htmlAudios[key] = a;
+      if (key === 'footstep' && footstepPool.length === 0) {
+        const p1 = new Audio(url); p1.preload = "auto";
+        const p2 = new Audio(url); p2.preload = "auto";
+        footstepPool.push(p1, p2);
+      }
+    }
+    registerHtmlAudio();
+
+    (async () => {
+      for (const url of paths) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            const ab = await res.arrayBuffer();
+            rawBuffers[key] = ab;
+            const ctx = ensureAudioCtx();
+            if (ctx) {
+              ctx.decodeAudioData(ab.slice(0), buf => { decodedBuffers[key] = buf; }, () => {});
+            }
+            return;
+          }
+        } catch (e) {}
+      }
+    })();
+  }
+  Object.keys(SOUND_FILES).forEach(k => setupSoundKey(k));
+
+  function unlockAllAudioSync() {
+    const ctx = ensureAudioCtx();
+    if (ctx) {
+      if (ctx.state === 'suspended') ctx.resume();
+      try {
+        const silentBuf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = silentBuf;
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch (e) {}
+
+      Object.keys(rawBuffers).forEach(k => {
+        if (!decodedBuffers[k] && rawBuffers[k]) {
+          try {
+            ctx.decodeAudioData(rawBuffers[k].slice(0), buf => { decodedBuffers[k] = buf; }, () => {});
+          } catch (e) {}
+        }
+      });
+    }
+
+    const allElements = [...Object.values(htmlAudios), ...footstepPool];
+    allElements.forEach(a => {
+      if (!a) return;
+      try {
+        const prevMuted = a.muted;
+        a.muted = true;
+        const p = a.play();
+        if (p && p.then) {
+          p.then(() => {
+            a.pause();
+            a.currentTime = 0;
+            a.muted = prevMuted;
+          }).catch(() => { a.muted = prevMuted; });
+        } else {
+          a.pause();
+          a.currentTime = 0;
+          a.muted = prevMuted;
+        }
+      } catch (e) {}
+    });
+  }
+
+  const DOOR_MUFFLE_VOL_RATIO = 0.28;
+  const DOOR_MUFFLE_FREQ = 420;
+
+  function playConfiguredSound(cfgKey, customMultiplier = 1.0, ignoreMuteAndConfig = false, playbackRate = 1.0) {
+    if (isMuted && !ignoreMuteAndConfig) return;
+    const cfg = VOL_CONFIG[cfgKey];
+    if (!cfg) return;
+    const audioKey = cfg.audioKey;
+    const isLoop = (audioKey === 'breath' || audioKey === 'titleBgm' || audioKey === 'rain');
+
+    if (cfgKey === 'notify' && !decodedBuffers.notify) {
+      playSoftMessageChime(cfg.val / 100);
+      return;
+    }
+
+    const boostFactor = ignoreMuteAndConfig ? 3.0 : (cfg.boost || 1.0);
+    let targetGain = ignoreMuteAndConfig ? (1.0 * boostFactor) : ((cfg.val / 100) * customMultiplier * boostFactor);
+    const shouldMuffle = (!ignoreMuteAndConfig && isDoor && cfg.muffleWhenDoor);
+    if (shouldMuffle) targetGain *= DOOR_MUFFLE_VOL_RATIO;
+
+    if (decodedBuffers[audioKey]) {
+      const ctx = ensureAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      if (isLoop) stopMp3(audioKey);
+
+      const src = ctx.createBufferSource();
+      src.buffer = decodedBuffers[audioKey];
+      src.loop = isLoop;
+      src.playbackRate.value = playbackRate;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = shouldMuffle ? DOOR_MUFFLE_FREQ : 20000;
+
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = Math.max(0, targetGain);
+
+      src.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      src.start(0);
+
+      if (!activeSources[audioKey]) activeSources[audioKey] = [];
+      const entry = { src, gainNode, filter };
+      activeSources[audioKey].push(entry);
+      src.onended = () => {
+        if (activeSources[audioKey]) {
+          activeSources[audioKey] = activeSources[audioKey].filter(x => x !== entry);
+        }
+      };
+      return;
+    }
+
+    const a = htmlAudios[audioKey];
+    if (!a) {
+      if (cfgKey === 'tap') playSynthTap(cfg.val / 100);
+      return;
+    }
+    const finalVol = Math.max(0, Math.min(1, targetGain));
+    try {
+      a.muted = false;
+      a.playbackRate = playbackRate;
+      a.volume = finalVol;
+      if (!isLoop) a.currentTime = 0;
+      a.play().catch(() => {
+        if (cfgKey === 'tap') playSynthTap(cfg.val / 100);
+      });
+    } catch (e) {}
+
+    if (boostFactor > 1 && audioKey === 'footstep' && finalVol > 0) {
+      footstepPool.forEach(p => {
+        try {
+          p.muted = false;
+          p.playbackRate = playbackRate;
+          p.volume = finalVol;
+          p.currentTime = 0;
+          p.play().catch(() => {});
+        } catch (e) {}
+      });
+    }
+  }
+
+  function getTargetRainVolume() {
+    let v = VOL_CONFIG.rain.val / 100;
+    if (isDoor) v *= DOOR_MUFFLE_VOL_RATIO;
+    return Math.max(0, Math.min(1, v));
+  }
+
+  function setRainCurrentVolume(vol) {
+    const clamped = Math.max(0, Math.min(1, vol));
+    if (activeSources.rain && activeSources.rain.length > 0 && audioCtx) {
+      activeSources.rain.forEach(entry => {
+        entry.gainNode.gain.setTargetAtTime(clamped, audioCtx.currentTime, 0.02);
+      });
+    }
+    if (htmlAudios.rain) {
+      try { htmlAudios.rain.volume = clamped; } catch (e) {}
+    }
+  }
+
+  function fadeRainVolume(fromVol, toVol, durationMs, onComplete) {
+    clearInterval(rainFadeInterval);
+    rainFadeInterval = null;
+    if (isMuted) {
+      if (onComplete) onComplete();
+      return;
+    }
+    startRainSound();
+    setRainCurrentVolume(fromVol);
+
+    const steps = 25;
+    const stepMs = durationMs / steps;
+    let stepCount = 0;
+
+    rainFadeInterval = setInterval(() => {
+      stepCount++;
+      const progress = Math.min(1, stepCount / steps);
+      setRainCurrentVolume(fromVol + (toVol - fromVol) * progress);
+      if (stepCount >= steps) {
+        clearInterval(rainFadeInterval);
+        rainFadeInterval = null;
+        if (onComplete) onComplete();
+      }
+    }, stepMs);
+  }
+
+  function updateAllDoorMuffleStates() {
+    Object.keys(VOL_CONFIG).forEach(cfgKey => {
+      const cfg = VOL_CONFIG[cfgKey];
+      if (!cfg.muffleWhenDoor || !cfg.audioKey) return;
+      if (cfgKey === 'rain' && rainFadeInterval) return;
+
+      let g = (cfg.val / 100) * (cfg.boost || 1.0);
+      if (isDoor) g *= DOOR_MUFFLE_VOL_RATIO;
+
+      const list = activeSources[cfg.audioKey];
+      if (list && list.length > 0 && audioCtx) {
+        list.forEach(entry => {
+          entry.gainNode.gain.setTargetAtTime(Math.max(0, g), audioCtx.currentTime, 0.03);
+          entry.filter.frequency.setTargetAtTime(isDoor ? DOOR_MUFFLE_FREQ : 20000, audioCtx.currentTime, 0.04);
+        });
+      }
+      const a = htmlAudios[cfg.audioKey];
+      if (a && !a.paused) {
+        try { a.volume = Math.max(0, Math.min(1, g)); } catch (e) {}
+      }
+    });
+  }
+
+  function stopMp3(audioKey) {
+    if (audioKey === 'rain') {
+      clearInterval(rainFadeInterval);
+      rainFadeInterval = null;
+    }
+    if (activeSources[audioKey]) {
+      activeSources[audioKey].forEach(entry => {
+        try { entry.src.stop(0); } catch (e) {}
+      });
+      activeSources[audioKey] = [];
+    }
+    const a = htmlAudios[audioKey];
+    if (a) {
+      try { a.pause(); a.currentTime = 0; a.playbackRate = 1.0; } catch (e) {}
+    }
+    if (audioKey === 'footstep') {
+      footstepPool.forEach(p => {
+        try { p.pause(); p.currentTime = 0; p.playbackRate = 1.0; } catch (e) {}
+      });
+    }
+  }
+
+  function playSynthTap(volScale = 0.32) {
+    if (isMuted || volScale <= 0) return;
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(680, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.035);
+    gain.gain.setValueAtTime(0.18 * volScale, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.04);
+  }
+
+  function playSoftMessageChime(volScale = 0.6) {
+    if (isMuted || volScale <= 0) return;
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    [
+      { freq: 523.25, delay: 0.00, dur: 0.11 },
+      { freq: 659.25, delay: 0.06, dur: 0.11 },
+      { freq: 783.99, delay: 0.12, dur: 0.22 }
+    ].forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.freq, now + n.delay);
+      gain.gain.setValueAtTime(0.001, now + n.delay);
+      gain.gain.linearRampToValueAtTime(0.24 * volScale, now + n.delay + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.delay + n.dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + n.delay);
+      osc.stop(now + n.delay + n.dur + 0.01);
+    });
+  }
+
+  function startTitleBgm() {
+    if (isMuted) return;
+    playConfiguredSound('titleBgm');
+  }
+
+  function startRainSound() {
+    if (isMuted) return;
+    const webRunning = (activeSources.rain && activeSources.rain.length > 0);
+    const htmlRunning = (htmlAudios.rain && !htmlAudios.rain.paused);
+    if (webRunning || htmlRunning) {
+      updateAllDoorMuffleStates();
+      return;
+    }
+    playConfiguredSound('rain');
+  }
+
+  function stopRainSound() { stopMp3('rain'); }
+
+  const btnSound = document.getElementById('btn-sound');
+  btnSound.onclick = () => {
+    unlockAllAudioSync();
+    isMuted = !isMuted;
+    if (isMuted) {
+      btnSound.innerText = "🔇 SOUND OFF";
+      btnSound.classList.add('muted');
+      stopBreathingSound();
+      stopMp3('titleBgm');
+      stopRainSound();
+    } else {
+      btnSound.innerText = "🔊 SOUND ON";
+      btnSound.classList.remove('muted');
+      if (currentScreenName === 'start' && !isStarting) startTitleBgm();
+      else if (['story', 'rule', 'play'].includes(currentScreenName)) startRainSound();
+    }
+  };
+
+  function playPhoneKeyTapSound() { playConfiguredSound('tap'); }
+  function playMomNotifySound() { playConfiguredSound('notify'); }
+  function playThunderSound() { playConfiguredSound('thunder'); }
+
+  function playFootstepForStage(stage) {
+    if (stage === 2) playConfiguredSound('plushDrop');
+    else if (stage === 3) playConfiguredSound('footstep3', 1.0, false, 1.0);
+    else if (stage === 4) playConfiguredSound('footstep4', 1.0, false, 1.0);
+  }
+
+  let batteryDeadFootstepActive = false;
+  function playUnadjustedLoudFootstep() {
+    batteryDeadFootstepActive = true;
+    playConfiguredSound('footstep4', 1.0, true, 1.25);
+  }
+
+  function stopUnadjustedLoudFootstep() {
+    if (batteryDeadFootstepActive) {
+      stopMp3('footstep');
+      batteryDeadFootstepActive = false;
+    }
+  }
+
+  function startBreathingSound() { playConfiguredSound('breath'); }
+  function stopBreathingSound() { stopMp3('breath'); }
+
+  function playChildLaugh() {
+    if (isEnded || isBatteryDying) return;
+    playConfiguredSound('laugh', 0.65 + ghostStage * 0.1);
+  }
+
+  let laughTimer = null;
+  function scheduleRandomLaugh() {
+    clearTimeout(laughTimer);
+    if (isEnded || isBatteryDying) return;
+    laughTimer = setTimeout(() => {
+      if (!isEnded && !isBatteryDying) playChildLaugh();
+      scheduleRandomLaugh();
+    }, (12 + Math.random() * 12) * 1000);
+  }
+
+  function playWoodDoorSound(isClosing) {
+    if (isClosing) {
+      stopMp3('doorOpen');
+      playConfiguredSound('doorClose');
+    } else {
+      stopMp3('doorClose');
+      playConfiguredSound('doorOpen');
+    }
+  }
+
+  function playJumpscareSound() {
+    if (isMuted) return;
+    const ctx = ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    const masterScale = VOL_CONFIG.jumpscare.val / 100;
+    if (masterScale <= 0) return;
+
+    const dur = 1.8;
+    [110, 156, 233, 311, 480].forEach(f => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(f * 0.65, ctx.currentTime + dur);
+      gain.gain.setValueAtTime(0.26 * masterScale, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + dur);
+    });
+
+    const bufferSize = ctx.sampleRate * dur;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1);
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const nGain = ctx.createGain();
+    nGain.gain.setValueAtTime(0.55 * masterScale, ctx.currentTime);
+    nGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
+    noise.connect(nGain);
+    nGain.connect(ctx.destination);
+    noise.start();
+  }
+
+  // ==========================================
+  // スタート画面90秒接近ループ
+  // ==========================================
+  const START_APPROACH_DURATION = 90000;
+  const MIN_TITLE_SCALE = 0.15;
+  const MAX_TITLE_SCALE = 2.45;
+  let startApproachStartTime = null;
+  let startApproachRafId = null;
+  let currentTitleScale = MIN_TITLE_SCALE;
+  let isStartScareActive = false;
+  let isStarting = false;
+
+  const titleImgEl = document.getElementById('title-img');
+  const titlePhEl = document.getElementById('title-art-placeholder');
+
+  function applyTitleScale(s) {
+    currentTitleScale = s;
+    titleImgEl.style.transform = `scale(${s})`;
+    titlePhEl.style.transform = `scale(${s})`;
+  }
+
+  function startTitleApproachLoop() {
+    cancelAnimationFrame(startApproachRafId);
+    startApproachStartTime = performance.now();
+    applyTitleScale(MIN_TITLE_SCALE);
+
+    function step(now) {
+      if (isStarting || isStartScareActive || currentScreenName !== 'start') return;
+      const progress = Math.min(1, (now - startApproachStartTime) / START_APPROACH_DURATION);
+      applyTitleScale(MIN_TITLE_SCALE + (MAX_TITLE_SCALE - MIN_TITLE_SCALE) * progress);
+      if (progress >= 1) {
+        triggerStartScreenJumpscare();
+        return;
+      }
+      startApproachRafId = requestAnimationFrame(step);
+    }
+    startApproachRafId = requestAnimationFrame(step);
+  }
+
+  function triggerStartScreenJumpscare() {
+    if (isStarting || isStartScareActive) return;
+    isStartScareActive = true;
+    cancelAnimationFrame(startApproachRafId);
+    stopMp3('titleBgm');
+
+    const sceneLayer = document.getElementById('scene-layer');
+    sceneImg.src = IMAGES.J || IMAGES.I || IMAGES.F || titleImg2Url || titleImg1Url || "";
+    sceneLayer.classList.add('start-scare-mode');
+    sceneImg.classList.add('jumpscare-attack');
+    whiteFlash.style.display = 'block';
+
+    playJumpscareSound();
+    if (navigator.vibrate) navigator.vibrate([300, 100, 400]);
+
+    setTimeout(() => {
+      whiteFlash.style.display = 'none';
+      sceneImg.classList.remove('jumpscare-attack');
+      sceneLayer.classList.remove('start-scare-mode');
+      fullBlackout.style.transition = 'none';
+      fullBlackout.classList.add('active');
+      setTimeout(resetAndRestartStartScreen, 5000);
+    }, 1700);
+  }
+
+  function resetAndRestartStartScreen() {
+    isStartScareActive = false;
+    const veil = document.getElementById('boot-veil');
+    const items = document.querySelectorAll('#start-screen .stagger-item');
+    if (titleImg1Url) titleImgEl.src = titleImg1Url;
+    applyTitleScale(MIN_TITLE_SCALE);
+
+    items.forEach(el => el.classList.remove('appear'));
+    veil.style.transition = 'none';
+    veil.classList.remove('fade-out');
+    fullBlackout.classList.remove('active');
+
+    setTimeout(() => {
+      fullBlackout.style.transition = 'opacity 1.5s ease-in-out';
+      veil.style.transition = 'opacity 2.2s ease-in-out';
+      veil.classList.add('fade-out');
+      items.forEach((el, idx) => {
+        setTimeout(() => el.classList.add('appear'), 350 + idx * 280);
+      });
+      startTitleBgm();
+      startTitleApproachLoop();
+    }, 80);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    currentScreenName = 'start';
+    setTimeout(() => {
+      document.getElementById('sound-notice-content').classList.add('visible');
+    }, 250);
+  });
+
+  let soundNoticeDismissed = false;
+  document.getElementById('btn-sound-notice-ok').onclick = () => {
+    if (soundNoticeDismissed) return;
+    soundNoticeDismissed = true;
+    unlockAllAudioSync();
+
+    const noticeScreen = document.getElementById('sound-notice-screen');
+    document.getElementById('sound-notice-content').classList.remove('visible');
+    noticeScreen.classList.add('fade-out');
+
+    setTimeout(() => {
+      noticeScreen.style.display = 'none';
+      document.getElementById('boot-veil').classList.add('fade-out');
+      document.querySelectorAll('#start-screen .stagger-item').forEach((el, idx) => {
+        setTimeout(() => el.classList.add('appear'), 350 + idx * 280);
+      });
+      startTitleBgm();
+      startTitleApproachLoop();
+    }, 1850);
+  };
+
+  // ==========================================
+  // 3. 全10通のLINEメッセージ
+  // ==========================================
+  const INITIAL_MOM_MSG = "もうすぐ帰るけど、ご飯食べた？";
+  const messages = [
+    {
+      text: "ママいまどこ？はやく帰ってきて",
+      reply: "もうすぐ着くけど、どうしたの？",
+      getAfterDeath: l => l === 0 ? ["おーい、ご飯食べたの？", "もうすぐ家に着くよ！"] : ["ちょっと、どうしたの？", "ねえ、なんで文字が途中で止まるの？大丈夫？"]
+    },
+    {
+      text: "たすけて、いまおそわれてる",
+      reply: "えっ！？どしたの！？どろぼう！？誰に！？",
+      getAfterDeath: l => l === 0 ? ["ねえ、どうしたの？なにかあったの？", "なんで返事しないの？心配させないでよ！"] : (l < 4 ? ["え、文字が途中で切れてるけどどうしたの！？", "ねえ、なにかあったの！？返事して！"] : (l < 8 ? ["たすけてってどういうこと！？", "ねえ、なにが起きてるの！？返事して！！"] : ["えっ！？襲われてるってどろぼう！？誰に！？", "おーい！！返事して！！"]))
+    },
+    {
+      text: "人形、人形におそわれてる",
+      reply: "人形ってどういうこと！？冗談はやめて！",
+      getAfterDeath: l => l < 2 ? ["どろぼうなの！？誰が家にいるの！？", "ねえ、なんで途中で止まるの！？返事して！！"] : ["人形ってなに！？どういうこと！？", "おーい！文字が途中で切れてるよ！返事して！"]
+    },
+    {
+      text: "うそじゃない、急に動き出したの",
+      reply: "ちょっと待って、ほんとに言ってるの…！？",
+      getAfterDeath: l => l < 6 ? ["ちょっと、ほんとに誰かいるの！？", "冗談なんでしょ！？ねえ、返事してよ！！"] : ["急に動き出したってどういうこと…！？", "ねえ大丈夫なの！？返事して！！"]
+    },
+    {
+      text: "部屋の中にいて出られない",
+      reply: "とにかく早く警察に電話しなさい！！",
+      getAfterDeath: l => l < 2 ? ["ねえ、いま無事なの！？", "おーい！スタンプでもいいから押して！！"] : ["部屋の中にいるってどういうこと！？", "出られないの！？ねえ、返事して！！"]
+    },
+    {
+      text: "声だしたらバレる、電話できない",
+      reply: "声が出せないのね！？今どこにいるの！？",
+      getAfterDeath: l => l < 2 ? ["警察には電話できたの！？", "ねえ、なんで返事がないの！？大丈夫なの！？"] : ["声を出せない状況なの！？", "ねえ、今どこにいるの！？返事して！！"]
+    },
+    {
+      text: "二階のわたしの部屋のタンスの中",
+      reply: "わかった！帰るまで絶対に出ないで！",
+      getAfterDeath: l => l < 2 ? ["今家のどこに隠れてるの！？", "場所だけでも教えて！！おーい！！"] : (l < 10 ? ["二階の部屋にいるのね！？", "部屋のどこに隠れてるの！？返事して！！"] : ["タンスの中にいるのね！？", "なんで途中で止まるの！？大丈夫なの！？"])
+    },
+    {
+      text: "扉がこわれてて手でおさえてる",
+      reply: "あと少しで着くから！そのまま押さえてて！",
+      getAfterDeath: l => l < 2 ? ["タンスの中で無事なのね！？", "ママが着くまで絶対に出ちゃだめよ！返事して！"] : ["タンスの扉がどうかしたの！？", "あと少しで家に着くから！おーい！！"]
+    },
+    {
+      text: "前まできてる、はやくきて",
+      reply: "いま玄関あけたよ！すぐ二階に行く！",
+      getAfterDeath: l => l < 2 ? ["まだ扉をおさえてられてる！？", "もう家の前まで来てるから！返事して！！"] : ["前まで来てるって、タンスの前にいるの！？", "いま玄関あけたよ！すぐそっちに行くから！！"]
+    },
+    {
+      text: "はやく助けにきて。ほんとに目の前",
+      reply: "今部屋のドア開けたよ！！もう大丈夫だから出てきて！！",
+      getAfterDeath: () => ["いま階段あがって部屋のドア開けたよ！！", "ねえ…タンスが空いてる…どこにいるの！？"]
+    }
+  ];
+
+  const pool = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだでどばびぶべぼー！？、。ママ人形急動部屋中声電話二階扉手前目";
+
+  let msgIdx = 0, charIdx = 0, ghostStage = 1;
+  let isEventStage5 = false, hasSeenEventGhostWithLight = false;
+  let battery = 100.0, isLight = false, isDoor = false, canRetreatOnThisHold = false;
+  let isThunder = false, isEnded = false, isBatteryDying = false, isSending = false, isPlaying = false, closeCount = 0;
+  let advTimer = null, retTimer = null, thTimer = null, killTimer = null, batInterval = null;
+  let doorFlickerTimers = [], thunderSubTimers = [];
+
+  const sceneImg = document.getElementById('scene-img');
+  const stageBlackout = document.getElementById('stage-blackout');
+  const fullBlackout = document.getElementById('full-blackout');
+  const flashOverlay = document.getElementById('flash-overlay');
+  const whiteFlash = document.getElementById('white-flash');
+  const doorEl = document.getElementById('locker-door');
+  const doorLightRef = document.getElementById('door-light-reflection');
+  const phoneWrap = document.getElementById('smartphone-wrapper');
+  const phoneFrame = document.getElementById('phone-frame');
+  const lockOverlay = document.getElementById('lock-screen-overlay');
+  const lockClockEl = document.getElementById('lock-clock-time');
+  const lockScareImg = document.getElementById('lock-scare-img');
+  const btnLight = document.getElementById('btn-light');
+  const btnDoor = document.getElementById('btn-door');
+  const lightBtnLabel = document.getElementById('light-btn-label');
+  const doorBtnLabel = document.getElementById('door-btn-label');
+  const typedEl = document.getElementById('typed-text');
+  const hintEl = document.getElementById('next-char-hint');
+  const friendLastRow = document.getElementById('friend-last-row');
+  const friendEl = document.getElementById('friend-msg');
+  const myLastRow = document.getElementById('my-last-row');
+  const lastSentBubble = document.getElementById('last-sent-bubble');
+  const batEl = document.getElementById('battery-disp');
+  const hudProg = document.getElementById('hud-progress');
+
+  function clearThunderSubTimers() {
+    thunderSubTimers.forEach(t => clearTimeout(t));
+    thunderSubTimers = [];
+    isThunder = false;
+    flashOverlay.classList.remove('active');
+  }
+  function clearDoorFlickerTimers() {
+    doorFlickerTimers.forEach(t => clearTimeout(t));
+    doorFlickerTimers = [];
+  }
+
+  function updateSceneImage() {
+    if (isEnded) return;
+    if (isThunder) {
+      const thunderMap = { 1: IMAGES.B, 2: IMAGES.C, 3: IMAGES.D, 4: IMAGES.E, 5: IMAGES.F };
+      sceneImg.src = thunderMap[ghostStage] || IMAGES.B || "";
+      return;
+    }
+    if (isLight) {
+      sceneImg.src = (ghostStage <= 3 ? IMAGES.G : (ghostStage === 4 ? IMAGES.H : IMAGES.I)) || "";
+      return;
+    }
+    sceneImg.src = IMAGES.A || "";
+  }
+
+  function transitionStageUp(newStage, isWarpEvent = false) {
+    if (isEnded || isBatteryDying) return;
+    stageBlackout.classList.add('active');
+    setTimeout(() => {
+      if (isEnded || isBatteryDying) return;
+      ghostStage = newStage;
+      if (ghostStage === 5) {
+        isEventStage5 = isWarpEvent;
+        hasSeenEventGhostWithLight = (isWarpEvent && isLight);
+        startKillTimer();
+      } else {
+        isEventStage5 = false;
+        hasSeenEventGhostWithLight = false;
+      }
+      updateSceneImage();
+      playFootstepForStage(ghostStage);
+      setTimeout(() => stageBlackout.classList.remove('active'), 140);
+    }, 120);
+  }
+
+  function triggerDoubleThunder() {
+    if (isEnded || isBatteryDying) return;
+    clearThunderSubTimers();
+    playThunderSound();
+    isThunder = true;
+    flashOverlay.classList.add('active');
+    updateSceneImage();
+
+    thunderSubTimers.push(setTimeout(() => {
+      if (isEnded || isBatteryDying) return;
+      isThunder = false;
+      flashOverlay.classList.remove('active');
+      updateSceneImage();
+
+      thunderSubTimers.push(setTimeout(() => {
+        if (isEnded || isBatteryDying) return;
+        isThunder = true;
+        flashOverlay.classList.add('active');
+        updateSceneImage();
+
+        thunderSubTimers.push(setTimeout(() => {
+          if (isEnded || isBatteryDying) return;
+          isThunder = false;
+          flashOverlay.classList.remove('active');
+          updateSceneImage();
+        }, 240));
+      }, 80));
+    }, 110));
+  }
+
+  function scheduleThunder() {
+    clearTimeout(thTimer);
+    if (isEnded || isBatteryDying) return;
+    const min = msgIdx < 4 ? 5.0 : (msgIdx < 7 ? 8.0 : 12.0);
+    thTimer = setTimeout(() => {
+      triggerDoubleThunder();
+      scheduleThunder();
+    }, (min + Math.random() * 4.5) * 1000);
+  }
+
+  function updateKeys() {
+    if (isEnded || isSending || isBatteryDying) return;
+    const target = messages[msgIdx].text;
+    const correct = target[charIdx];
+    let arr = [correct];
+    while (arr.length < 3) {
+      const c = pool[Math.floor(Math.random() * pool.length)];
+      if (!arr.includes(c)) arr.push(c);
+    }
+    arr.sort(() => Math.random() - 0.5);
+    ['k0', 'k1', 'k2'].forEach((id, i) => {
+      const b = document.getElementById(id);
+      b.innerText = arr[i];
+      b.onclick = () => onKeyTap(arr[i]);
+    });
+    typedEl.innerText = target.slice(0, charIdx) || "メッセージを入力";
+    typedEl.style.color = charIdx === 0 ? "#9ca3af" : "#111";
+    hintEl.innerText = `次:「${correct}」`;
+  }
+
+  function onKeyTap(ch) {
+    if (!isPlaying || isEnded || isBatteryDying || isSending || isLight || isDoor) return;
+    if (ghostStage === 5 && (!isEventStage5 || hasSeenEventGhostWithLight)) {
+      endGame(false, "ぬいぐるみに入られた!");
+      return;
+    }
+    const target = messages[msgIdx].text;
+    if (ch === target[charIdx]) {
+      playPhoneKeyTapSound();
+      charIdx++;
+      if (charIdx >= target.length) {
+        isSending = true;
+        myLastRow.style.display = 'flex';
+        lastSentBubble.innerText = target;
+        friendLastRow.style.opacity = '0';
+        typedEl.innerText = "ママが入力中...";
+        typedEl.style.color = "#9ca3af";
+        hintEl.innerText = "";
+
+        msgIdx++;
+        hudProg.innerText = `SOS: ${msgIdx}/10`;
+
+        if (msgIdx >= messages.length) {
+          isPlaying = false;
+          clearTimeout(advTimer); clearTimeout(retTimer); clearTimeout(thTimer);
+          clearTimeout(killTimer); clearTimeout(laughTimer); clearInterval(batInterval);
+          clearThunderSubTimers();
+
+          setTimeout(() => {
+            if (isEnded) return;
+            fullBlackout.style.transition = "opacity 1.6s ease-in-out";
+            fullBlackout.classList.add('active');
+            setTimeout(() => {
+              if (!isEnded) {
+                endGame(true, "");
+                setTimeout(() => fullBlackout.classList.remove('active'), 80);
+              }
+            }, 1650);
+          }, 450);
+          return;
+        }
+
+        setTimeout(() => {
+          if (isEnded || isBatteryDying) return;
+          playMomNotifySound();
+          friendEl.innerText = messages[msgIdx - 1].reply;
+          friendLastRow.style.opacity = '1';
+          charIdx = 0;
+          isSending = false;
+          updateKeys();
+        }, 1000);
+      } else {
+        updateKeys();
+      }
+    } else {
+      battery = Math.max(0.1, battery - 2);
+      updateKeys();
+    }
+  }
+
+  // ライトボタン（扉閉鎖中は操作不可・ON/OFF時にスマホタップ音）
+  btnLight.onclick = () => {
+    if (!isPlaying || isEnded || isBatteryDying || isDoor) return;
+    isLight = !isLight;
+    playPhoneKeyTapSound();
+
+    if (isLight) {
+      phoneWrap.classList.add('tilt-forward');
+      btnLight.classList.add('on-light');
+      lightBtnLabel.innerText = "OFF";
+      if (ghostStage === 5 && isEventStage5) hasSeenEventGhostWithLight = true;
+    } else {
+      phoneWrap.classList.remove('tilt-forward');
+      btnLight.classList.remove('on-light');
+      lightBtnLabel.innerText = "ライト";
+    }
+    updateSceneImage();
+  };
+
+  document.getElementById('flashlight-screen-overlay').onclick = () => {
+    if (isLight && !isEnded && !isBatteryDying && !isDoor) btnLight.onclick();
+  };
+
+  function rollLockScreenAnomaly() {
+    lockClockEl.innerText = (Math.random() < 0.05) ? "6:66" : "6:30";
+    if (Math.random() < 0.015) {
+      const scareUrl = IMAGES.J || IMAGES.I || IMAGES.F || "";
+      if (scareUrl) {
+        lockScareImg.src = scareUrl;
+        lockScareImg.style.display = 'block';
+      }
+    } else {
+      lockScareImg.style.display = 'none';
+    }
+  }
+
+  function setFlickerBlackoutState(isBlackout) {
+    if (isBlackout) {
+      lockOverlay.classList.add('flicker-off');
+      phoneFrame.classList.add('glow-off');
+      doorLightRef.classList.add('light-off');
+    } else {
+      lockOverlay.classList.remove('flicker-off');
+      phoneFrame.classList.remove('glow-off');
+      doorLightRef.classList.remove('light-off');
+    }
+  }
+
+  function scheduleNextDoorChikaChika() {
+    clearDoorFlickerTimers();
+    if (!isDoor || isEnded || isBatteryDying) return;
+    const calmDuration = 1200 + Math.random() * 1300;
+    doorFlickerTimers.push(setTimeout(() => {
+      if (!isDoor || isEnded || isBatteryDying) return;
+      const blinkCount = Math.random() < 0.65 ? 2 : 3;
+      let tOffset = 0;
+      for (let i = 0; i < blinkCount; i++) {
+        const offDur = 35 + Math.random() * 35;
+        const onDur  = 45 + Math.random() * 50;
+        doorFlickerTimers.push(setTimeout(() => {
+          if (!isDoor || isEnded || isBatteryDying) return;
+          setFlickerBlackoutState(true);
+        }, tOffset));
+        tOffset += offDur;
+        doorFlickerTimers.push(setTimeout(() => {
+          if (!isDoor || isEnded || isBatteryDying) return;
+          rollLockScreenAnomaly();
+          setFlickerBlackoutState(false);
+        }, tOffset));
+        tOffset += onDur;
+      }
+      doorFlickerTimers.push(setTimeout(() => {
+        if (!isDoor || isEnded || isBatteryDying) return;
+        lockScareImg.style.display = 'none';
+        scheduleNextDoorChikaChika();
+      }, tOffset + 120));
+    }, calmDuration));
+  }
+
+  // ★扉の開閉：長押ししている間だけ閉まる（離すと開く）
+  function closeDoor(e) {
+    if (e) e.preventDefault();
+    if (!isPlaying || isEnded || isBatteryDying || isDoor) return;
+    isDoor = true;
+    closeCount++;
+    playWoodDoorSound(true);
+    startBreathingSound();
+    updateAllDoorMuffleStates();
+
+    isLight = false;
+    phoneWrap.classList.remove('tilt-forward');
+    btnLight.classList.remove('on-light');
+    btnLight.classList.add('disabled-btn'); // 扉閉鎖中はライトボタンを押せないようにロック
+    lightBtnLabel.innerText = "ライト";
+
+    lockClockEl.innerText = "6:30";
+    lockScareImg.style.display = 'none';
+    setFlickerBlackoutState(false);
+
+    doorEl.classList.add('closed');
+    phoneWrap.classList.add('slide-down');
+    phoneWrap.classList.add('locked');
+    btnDoor.classList.add('on-door');
+    doorBtnLabel.innerText = "閉鎖中";
+
+    scheduleNextDoorChikaChika();
+
+    if (!isSending && charIdx > 0) {
+      charIdx = 0;
+      updateKeys();
+    }
+    updateSceneImage();
+    clearTimeout(killTimer);
+
+    canRetreatOnThisHold = (ghostStage >= 4);
+    if (canRetreatOnThisHold) scheduleRetreat();
+  }
+
+  function openDoor() {
+    if (!isDoor || isEnded || isBatteryDying) return;
+    isDoor = false;
+    canRetreatOnThisHold = false;
+    clearDoorFlickerTimers();
+    setFlickerBlackoutState(false);
+    lockScareImg.style.display = 'none';
+
+    playWoodDoorSound(false);
+    stopBreathingSound();
+    updateAllDoorMuffleStates();
+    clearTimeout(retTimer);
+
+    doorEl.classList.remove('closed');
+    phoneWrap.classList.remove('slide-down');
+    phoneWrap.classList.remove('locked');
+    btnDoor.classList.remove('on-door');
+    btnLight.classList.remove('disabled-btn');
+    doorBtnLabel.innerText = "閉める";
+
+    updateKeys();
+    updateSceneImage();
+    if (ghostStage === 5) startKillTimer();
+  }
+
+  btnDoor.addEventListener('mousedown', closeDoor);
+  window.addEventListener('mouseup', openDoor);
+  btnDoor.addEventListener('touchstart', closeDoor, { passive: false });
+  window.addEventListener('touchend', openDoor);
+  window.addEventListener('touchcancel', openDoor);
+
+  function scheduleRetreat() {
+    clearTimeout(retTimer);
+    if (!isDoor || !canRetreatOnThisHold || isEnded || isBatteryDying) return;
+    const delaySec = (ghostStage === 2) ? (2.8 + Math.random() * 1.2) : (1.2 + Math.random() * 0.8);
+    retTimer = setTimeout(() => {
+      if (!isDoor || !canRetreatOnThisHold || isEnded || isBatteryDying) return;
+      if (ghostStage > 1) {
+        ghostStage--;
+        isEventStage5 = false;
+        hasSeenEventGhostWithLight = false;
+        updateSceneImage();
+        scheduleRetreat();
+      }
+    }, delaySec * 1000);
+  }
+
+  // ★8・9・10通目（msgIdx >= 7）ではお化けの足が気持ち少し速くなる
+  function scheduleAdvance() {
+    clearTimeout(advTimer);
+    if (isEnded || isBatteryDying) return;
+    const isLateGame = (msgIdx >= 7);
+    const delaySec = (ghostStage === 4)
+      ? (isLateGame ? (6.0 + Math.random() * 0.8) : (7.0 + Math.random() * 1.0))
+      : (isLateGame ? (6.8 + Math.random() * 2.7) : (8.0 + Math.random() * 3.5));
+
+    advTimer = setTimeout(() => {
+      if (!isDoor && !isEnded && !isBatteryDying && ghostStage < 5) {
+        const denom = Math.max(2, 10 - Math.floor(msgIdx / 3));
+        if (Math.random() < (1 / denom)) transitionStageUp(5, true);
+        else transitionStageUp(ghostStage + 1, false);
+      }
+      scheduleAdvance();
+    }, delaySec * 1000);
+  }
+
+  function startKillTimer() {
+    clearTimeout(killTimer);
+    const limitMs = isEventStage5 ? 10000 : 6000;
+    killTimer = setTimeout(() => {
+      if (!isDoor && ghostStage === 5 && !isEnded && !isBatteryDying) {
+        endGame(false, "ぬいぐるみに入られた!");
+      }
+    }, limitMs);
+  }
+
+  function triggerBatteryDeadSequence() {
+    if (isEnded || isBatteryDying) return;
+    isBatteryDying = true;
+    battery = 0;
+    batEl.innerText = "🔋0%";
+
+    clearTimeout(advTimer); clearTimeout(retTimer); clearTimeout(thTimer);
+    clearTimeout(killTimer); clearTimeout(laughTimer); clearDoorFlickerTimers();
+    clearInterval(batInterval); clearThunderSubTimers();
+
+    stopRainSound(); stopBreathingSound();
+    stopMp3('thunder'); stopMp3('plushDrop'); stopMp3('footstep');
+    stopMp3('laugh'); stopMp3('doorClose'); stopMp3('doorOpen');
+
+    isLight = false; isDoor = false;
+    doorEl.classList.remove('closed');
+    phoneWrap.classList.remove('tilt-forward', 'slide-down', 'locked');
+    btnLight.classList.remove('on-light', 'disabled-btn');
+    btnDoor.classList.remove('on-door');
+    updateSceneImage();
+
+    const deadOverlay = document.getElementById('battery-dead-overlay');
+    const deadIcon = document.getElementById('battery-dead-icon');
+    deadOverlay.style.display = 'flex';
+
+    deadIcon.classList.add('visible');
+    setTimeout(() => deadIcon.classList.remove('visible'), 350);
+    setTimeout(() => deadIcon.classList.add('visible'), 600);
+    setTimeout(() => {
+      deadIcon.classList.remove('visible');
+      phoneFrame.classList.add('glow-off');
+      doorLightRef.classList.add('light-off');
+      setTimeout(() => {
+        playUnadjustedLoudFootstep();
+        setTimeout(() => {
+          stopUnadjustedLoudFootstep();
+          endGame(false, "携帯の電池が切れた!");
+        }, 1500);
+      }, 1000);
+    }, 950);
+  }
+
+  function applyResultIllustration(win, sentCount) {
+    const rImg = document.getElementById('result-img');
+    const rPh = document.getElementById('result-art-placeholder');
+    const targetUrl = win
+      ? (END_IMAGES[10] || END_IMAGES.clear)
+      : (END_IMAGES[sentCount] || END_IMAGES[sentCount + 1] || END_IMAGES[1] || END_IMAGES[0]);
+    if (targetUrl) {
+      rImg.src = targetUrl;
+      rImg.style.display = 'block';
+      rPh.style.display = 'none';
+    } else {
+      rImg.style.display = 'none';
+      rPh.style.display = 'block';
+    }
+  }
+
+  function buildFullChatHistoryHTML(isWin, sentCount, currentTypingIdx, currentTypedChars) {
+    let html = `<div class="fc-row-friend visible"><div class="friend-icon">母</div><div class="fc-bubble-friend">${INITIAL_MOM_MSG}</div></div>`;
+    if (isWin) {
+      for (let i = 0; i < messages.length; i++) {
+        html += `<div class="fc-row-me"><span class="read-label">既読</span><div class="fc-bubble-me">${messages[i].text}</div></div><div class="fc-row-friend visible"><div class="friend-icon">母</div><div class="fc-bubble-friend">${messages[i].reply}</div></div>`;
+      }
+      return { html, lastBubbleText: messages[9].text, firstReaction: messages[9].reply };
+    }
+    for (let i = 0; i < sentCount; i++) {
+      html += `<div class="fc-row-me"><span class="read-label">既読</span><div class="fc-bubble-me">${messages[i].text}</div></div><div class="fc-row-friend visible"><div class="friend-icon">母</div><div class="fc-bubble-friend">${messages[i].reply}</div></div>`;
+    }
+    const currentObj = messages[currentTypingIdx];
+    let partialText = "";
+    if (currentTypedChars > 0) {
+      partialText = currentObj.text.slice(0, currentTypedChars) + "…";
+      html += `<div class="fc-row-me"><span class="read-label">既読</span><div class="fc-bubble-me">${partialText}</div></div>`;
+    } else {
+      partialText = sentCount > 0 ? messages[sentCount - 1].text : "（未送信）";
+    }
+    const reactions = currentObj.getAfterDeath(currentTypedChars);
+    html += `<div class="fc-row-friend" id="after-msg-0"><div class="friend-icon">母</div><div class="fc-bubble-friend">${reactions[0]}</div></div><div class="fc-row-friend" id="after-msg-1"><div class="friend-icon">母</div><div class="fc-bubble-friend">${reactions[1]}</div></div>`;
+    return { html, lastBubbleText: partialText, firstReaction: reactions[0] };
+  }
+
+  function playResultSequence(isWin, chatWin) {
+    const winLine = document.getElementById('window-line');
+    const winMedia = document.getElementById('window-media');
+    const artBox = document.getElementById('result-art-box');
+    const footerSec = document.getElementById('result-footer-section');
+    winLine.className = ''; winMedia.className = ''; artBox.className = ''; footerSec.className = '';
+
+    setTimeout(() => {
+      winLine.classList.add('center-stage');
+      chatWin.scrollTop = chatWin.scrollHeight;
+    }, 50);
+
+    if (!isWin) {
+      setTimeout(() => {
+        playMomNotifySound();
+        const m0 = document.getElementById('after-msg-0');
+        if (m0) m0.classList.add('visible');
+        chatWin.scrollTop = chatWin.scrollHeight;
+      }, 450);
+      setTimeout(() => {
+        playMomNotifySound();
+        const m1 = document.getElementById('after-msg-1');
+        if (m1) m1.classList.add('visible');
+        chatWin.scrollTop = chatWin.scrollHeight;
+      }, 950);
+    }
+
+    const moveDelay = isWin ? 1050 : 1400;
+    setTimeout(() => {
+      winLine.classList.remove('center-stage');
+      winLine.classList.add('move-to-top');
+      winMedia.classList.add('visible');
+    }, moveDelay);
+    setTimeout(() => artBox.classList.add('slide-in-right'), moveDelay + 400);
+    setTimeout(() => footerSec.classList.add('float-up'), moveDelay + 950);
+  }
+
+  function endGame(win, reason) {
+    if (isEnded) return;
+    isEnded = true; isPlaying = false; currentScreenName = 'result';
+
+    document.getElementById('ready-modal-backdrop').style.display = 'none';
+    clearTimeout(advTimer); clearTimeout(retTimer); clearTimeout(thTimer);
+    clearTimeout(killTimer); clearTimeout(laughTimer); clearDoorFlickerTimers();
+    clearInterval(batInterval); stopBreathingSound(); stopRainSound(); clearThunderSubTimers();
+
+    const ov = document.getElementById('overlay');
+    const title = document.getElementById('end-title');
+    const chatWin = document.getElementById('final-chat-window');
+    const reasonEl = document.getElementById('death-reason');
+    const share = document.getElementById('share-link');
+
+    const sentCount = win ? 10 : msgIdx;
+    applyResultIllustration(win, sentCount);
+
+    const shareTargetUrl = new URL(`share${sentCount}.html`, window.location.href).href;
+    const currentIdx = Math.min(msgIdx, messages.length - 1);
+    const historyData = buildFullChatHistoryHTML(win, sentCount, currentIdx, charIdx);
+    chatWin.innerHTML = historyData.html;
+
+    if (win) {
+      playConfiguredSound('clear');
+      title.innerText = "SOS 送信完了（10 / 10）";
+      title.style.color = "#68d391";
+      reasonEl.innerHTML = `メッセージを送り切り、ママが来てくれた!<br>あのぬいぐるみは何だったのかしら`;
+      const txt = `【ママが帰るまで — UNTIL MOM COMES HOME —】\nメッセージを送り切り、ママが来てくれた！あのぬいぐるみは何だったのかしら（10/10生還）\n`;
+      share.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(shareTargetUrl)}&hashtags=${encodeURIComponent("ママが帰るまで,個人開発")}`;
+
+      ov.style.display = 'flex';
+      setTimeout(() => {
+        ov.classList.add('fade-in');
+        playResultSequence(true, chatWin);
+      }, 50);
+    } else {
+      doorEl.classList.remove('closed');
+      doorEl.classList.add('blown-open');
+      phoneWrap.classList.add('drop-away');
+      document.getElementById('hud').style.display = 'none';
+
+      sceneImg.src = IMAGES.J || IMAGES.I || IMAGES.F || IMAGES.E || "";
+      sceneImg.classList.add('jumpscare-attack');
+      whiteFlash.style.display = 'block';
+
+      playJumpscareSound();
+      if (navigator.vibrate) navigator.vibrate([300, 100, 400]);
+
+      title.innerText = `GAME OVER（${sentCount} / 10）`;
+      title.style.color = "#fc8181";
+      reasonEl.innerText = reason || "ぬいぐるみに入られた!";
+
+      const txt = `最後のメッセージ：『${historyData.lastBubbleText}』\nママ「${historyData.firstReaction}」\n\n（${reasonEl.innerText} / SOS送信 ${sentCount}/10）\n`;
+      share.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(shareTargetUrl)}&hashtags=${encodeURIComponent("ママが帰るまで,個人開発")}`;
+
+      setTimeout(() => {
+        whiteFlash.style.display = 'none';
+        sceneImg.classList.remove('jumpscare-attack');
+        ov.style.display = 'flex';
+        setTimeout(() => ov.classList.add('fade-in'), 30);
+        setTimeout(() => playResultSequence(false, chatWin), 600);
+      }, 1700);
+    }
+  }
+
+  // スタート演出
+  document.getElementById('btn-start').onclick = () => {
+    if (isStarting || isStartScareActive) return;
+    isStarting = true;
+    unlockAllAudioSync();
+
+    cancelAnimationFrame(startApproachRafId);
+    applyTitleScale(currentTitleScale);
+    stopMp3('titleBgm');
+
+    const startScr = document.getElementById('start-screen');
+    startScr.classList.add('monochrome-bg');
+
+    if (titleImg2Url) {
+      titleImgEl.src = titleImg2Url;
+      titleImgEl.style.display = 'block';
+      titlePhEl.style.display = 'none';
+    }
+
+    setTimeout(() => {
+      fullBlackout.style.transition = "opacity 1.5s ease-in-out";
+      fullBlackout.classList.add('active');
+
+      setTimeout(() => {
+        startScr.style.display = 'none';
+        const storyScreen = document.getElementById('story-screen');
+        if (storyBgXUrl) document.getElementById('story-bg-img').src = storyBgXUrl;
+        if (IMAGES.B) document.getElementById('rule-bg-img').src = IMAGES.B;
+
+        storyScreen.style.display = 'flex';
+        currentScreenName = 'story';
+        startRainSound();
+        fullBlackout.classList.remove('active');
+
+        const lineIds = ['s-line-0', 's-line-1', 's-line-2', 's-line-3'];
+        lineIds.forEach((id, idx) => {
+          setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('show');
+          }, 450 + idx * 1600);
+        });
+        setTimeout(() => {
+          document.getElementById('btn-story-next').classList.add('show');
+        }, 450 + lineIds.length * 1600);
+      }, 1550);
+    }, 350);
+  };
+
+  let storyDone = false;
+  document.getElementById('btn-story-next').onclick = () => {
+    if (storyDone) return;
+    storyDone = true;
+    unlockAllAudioSync();
+
+    fullBlackout.style.transition = "opacity 0.6s ease";
+    fullBlackout.classList.add('active');
+
+    setTimeout(() => {
+      document.getElementById('story-screen').style.display = 'none';
+      const ruleScreen = document.getElementById('rule-screen');
+      ruleScreen.style.display = 'flex';
+      currentScreenName = 'rule';
+      startRainSound();
+      fullBlackout.classList.remove('active');
+
+      setTimeout(() => document.getElementById('rule-detail-card').classList.add('show'), 200);
+      setTimeout(() => document.getElementById('btn-rule-next').classList.add('show'), 750);
+    }, 620);
+  };
+
+  let ruleDone = false;
+  document.getElementById('btn-rule-next').onclick = () => {
+    if (ruleDone) return;
+    ruleDone = true;
+    unlockAllAudioSync();
+
+    fullBlackout.style.transition = "opacity 1.6s ease-in-out";
+    fullBlackout.classList.add('active');
+    fadeRainVolume(getTargetRainVolume(), 0, 1550);
+
+    setTimeout(() => {
+      document.getElementById('rule-screen').style.display = 'none';
+      document.body.classList.add('in-game');
+      currentScreenName = 'play';
+
+      updateKeys();
+      updateSceneImage();
+      fullBlackout.classList.remove('active');
+      fadeRainVolume(0, getTargetRainVolume(), 1600);
+
+      document.getElementById('ready-modal-backdrop').style.display = 'flex';
+    }, 1650);
+  };
+
+  document.getElementById('btn-ready-arrow').onclick = () => {
+    if (isPlaying || isEnded || isBatteryDying) return;
+    isPlaying = true;
+    unlockAllAudioSync();
+
+    document.getElementById('ready-modal-backdrop').style.display = 'none';
+    playConfiguredSound('laugh');
+
+    scheduleAdvance();
+    scheduleThunder();
+    scheduleRandomLaugh();
+    setTimeout(triggerDoubleThunder, 1000);
+
+    batInterval = setInterval(() => {
+      if (isEnded || !isPlaying || isBatteryDying) return;
+      if (battery > 1.0) {
+        battery = Math.max(1.0, battery - (isLight ? 1.1 : 0.35));
+        batEl.innerText = `🔋${Math.ceil(battery)}%`;
+      } else {
+        batEl.classList.add('battery-critical');
+        battery = Math.max(0, battery - (1.0 / 15.0));
+        batEl.innerText = battery > 0 ? `🔋1%` : `🔋0%`;
+        if (battery <= 0) triggerBatteryDeadSequence();
+      }
+    }, 1000);
+  };
+</script>
+</body>
+</html>
